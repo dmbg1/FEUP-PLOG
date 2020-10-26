@@ -15,17 +15,12 @@ translate(purple,'P').
 translate(green, 'G').
 translate(white, 'W'). 
 
-play :-
-	display_game(_GameState,_Player)
-.
-
 display_game(GameState,_Player) :- 
 	initial(GameState),
 	printBoard(GameState, 10) %10 lines board
 .
 
 printBoard([H|T], N) :-
-	N >= 0,
 	N1 is N-1,
 	printLine(H, N),
 	write('|'),
@@ -39,6 +34,5 @@ printLine([H|T], N) :-
 	format('~*c| ~w ', [N*2, 0' , Transl]),
 	printLine(T, 0)
 .
-
 printLine([], 0).
 
