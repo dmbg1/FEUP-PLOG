@@ -1,4 +1,5 @@
 :- dynamic(skull/1).
+:- dynamic(turn/1).
 
 initial([         	               [empty],
 							    [empty, empty],
@@ -12,22 +13,40 @@ initial([         	               [empty],
 [purple, purple, purple, purple, empty, empty, white, white, white, white]]
 ).
 
-skull(purple).
+skull('Purple').
 
 changeSkull(New) :-
 	skull(Current),
-	Current == purple,
-	New = green,
-	retract(skull(purple)),
-	assert(skull(green))
+	Current == 'Purple',
+	New = 'Green',
+	retract(skull('Purple')),
+	assert(skull('Green'))
 .
 
 changeSkull(New) :-
 	skull(Current),
-	Current == green,
-	New = purple,
-	retract(skull(green)),
-	assert(skull(purple))
+	Current == 'Green',
+	New = 'Purple',
+	retract(skull('Green')),
+	assert(skull('Purple'))
+.
+
+turn('Purple').
+
+changeTurn(New) :-
+	turn(Current),
+	Current == 'Purple',
+	New = 'Green',
+	retract(turn('Purple')),
+	assert(turn('Green'))
+.
+
+changeTurn(New) :-
+	turn(Current),
+	Current == 'Green',
+	New = 'Purple',
+	retract(turn('Green')),
+	assert(turn('Purple'))
 .
 
 translate(empty, '.').
@@ -35,17 +54,19 @@ translate(purple,'P').
 translate(green, 'G').
 translate(white, 'W'). 
 
-display_game(GameState,_Player) :- 
+display_game(GameState, Player) :- 
 	initial(GameState),
 	printBoard(GameState, 10), 	% 10 lines board
 	nl,
 	skull(HasSkull),
-	printSkull(HasSkull)
+	printSkull(HasSkull),
+	turn(Player),
+	printPlayerTurn(Player)
 .
 
 printBoard([H|T], N) :-
 	N1 is N-1,
-	printLine(H, N),
+	printLine(H, N1),
 	write('|'),
 	nl,
 	printBoard(T, N1)
@@ -54,13 +75,19 @@ printBoard([],0).
 
 printLine([H|T], N) :-
 	translate(H, Transl),
-	format('~*c| ~w ', [N*2, 0 , Transl]),
+	format('~*c| ~w ', [N*2, 0' , Transl]),
 	printLine(T, 0)
 .
 printLine([], 0).
 
 printSkull(HasSkull) :-
 	write(HasSkull),
-	write(' has the Skull')
+	write(' has the Skull'),
+	nl
 .
 	
+printPlayerTurn(Player) :-
+	write(Player),
+	write(' Turn:'),
+	nl
+.
