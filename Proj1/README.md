@@ -7,7 +7,7 @@ No âmbito da unidade curricular Programação em Lógica do MIEIC, foi nos apre
 ### **O Jogo**
 
 *Green Skull* joga-se em cima de um tabuleiro triangular equilátero composto por hexágonos. Tal como a figura mostra, o triângulo tem 10 hexágonos nas extremidades do triângulo.
-As peças brancas pertencem ao primeiro jogador e as peças roxas ao segundo. As peças verdes são denominadas por zombies e o controlo sobre estas peças é de quem tiver a caveira verde.
+As peças brancas pertencem ao primeiro jogador e as peças roxas ao segundo. As peças verdes são denominadas por zombies e o controlo sobre estas peças é de quem tiver a caveira verde. O primeiro turno pertence ao jogador roxo.
 
 ![Estado inicial do Jogo](./Images/EstadoInicial.png)
 

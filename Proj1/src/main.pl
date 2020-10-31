@@ -1,5 +1,7 @@
 :- consult('board.pl').
 
 play :-
-	display_game(_GameState,_Player)
+	initial(GameState),
+	turn(Player),
+	display_game(GameState, Player)
 .
