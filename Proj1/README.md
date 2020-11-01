@@ -1,5 +1,9 @@
 # **Green Skull**
 
+### **Grupo - Green_Skull_2**
+Diogo Miguel Borges Gomes - up201806572
+João Castro Pinto - up201806667
+
 ### **Introdução**
 
 No âmbito da unidade curricular Programação em Lógica do MIEIC, foi nos apresentado o desafio de desenvolver um jogo de tabuleiro para duas pessoas na linguagem de programação Prolog. O nosso grupo optou por implementar o jogo *Green Skull*. O jogo é da autoria de Danny Goodisman e Nestorgames é o nome da empresa que distribui o jogo.
