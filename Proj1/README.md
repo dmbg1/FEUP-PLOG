@@ -49,3 +49,4 @@ Para representar o jogo implementamos o predicado display_game/2. Este predicado
 O código no qual se implementa o desenho do jogo é o seguinte:  
  
 ![Código de representação do tabuleiro](./Images/CodRepBoard.png)
+['/home/diogo/FEUP-PLOG/Proj1/src/main.pl'].

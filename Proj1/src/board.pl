@@ -1,6 +1,4 @@
-:- dynamic(turn/1).
-
-initial([ 'Purple',
+initial([ 'Purple', 'Purple',
 		         	               [empty],
 							    [empty, empty],
 						    [green, empty, green],
@@ -27,22 +25,18 @@ changeSkull(GameStateOld, GameStateNew) :-
 	GameStateNew = [SkullNew|Board]
 .
 
-turn('Purple').
-
-changeTurn(New) :-
-	turn(Current),
-	Current == 'Purple',
-	New = 'Green',
-	retract(turn('Purple')),
-	assert(turn('Green'))
+changeTurn(GameStateOld, GameStateNew) :-
+	[Gs, Turn|Board] = GameStateOld,
+	Turn == 'Purple',
+	NewTurn = 'Green',
+	GameStateNew =[Gs, NewTurn|Board]
 .
 
-changeTurn(New) :-
-	turn(Current),
-	Current == 'Green',
-	New = 'Purple',
-	retract(turn('Green')),
-	assert(turn('Purple'))
+changeTurn(GameStateOld, GameStateNew) :-
+	[Gs, Turn|Board] = GameStateOld,
+	Turn == 'Green',
+	NewTurn = 'Purple',
+	GameStateNew =[Gs, NewTurn|Board]
 .
 
 translate(empty, '.').
@@ -51,7 +45,7 @@ translate(green, 'G').
 translate(white, 'W'). 
 
 display_game(GameState, Player) :- 
-	[Skull|Board] = GameState,
+	[Skull, _|Board] = GameState,
 	printBoard(Board, 10), 	% 10 lines board
 	printSkull(Skull),
 	printPlayerTurn(Player)

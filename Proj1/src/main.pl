@@ -2,6 +2,6 @@
 
 play :-
 	initial(GameState),
-	turn(Player),
+	[_, Player|_] = GameState,
 	display_game(GameState, Player)
 .
