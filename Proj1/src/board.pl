@@ -8,7 +8,11 @@ initial([ 'Purple', 'Purple',
 	        [purple, empty, empty, green, empty, empty, white],
 	    [purple, purple, empty, empty, empty, empty, white, white],
   	[purple, purple, purple, empty, empty, empty, white, white, white],
-[purple, purple, purple, purple, empty, empty, white, white, white, white]]
+[purple, purple, purple, purple, empty, empty, white, white, white, white]
+[P, 101, 102, 103, 104, 91, 92, 93, 81, 82, 71],
+[W, 107, 108, 109, 110, 99, 98, 97, 88, 87, 77],
+[G, 31, 33, 41, 44, 53, 63, 64, 74]
+]
 ).
 
 changeSkull(GameStateOld, GameStateNew) :-
