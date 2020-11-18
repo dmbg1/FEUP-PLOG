@@ -8,7 +8,7 @@ initial([ 'Purple', 'Purple',
 	        [purple, empty, empty, green, empty, empty, white],
 	    [purple, purple, empty, empty, empty, empty, white, white],
   	[purple, purple, purple, empty, empty, empty, white, white, white],
-[purple, purple, purple, purple, empty, empty, white, white, white, white]
+[purple, purple, purple, purple, empty, empty, white, white, white, white],
 [P, 101, 102, 103, 104, 91, 92, 93, 81, 82, 71],
 [W, 107, 108, 109, 110, 99, 98, 97, 88, 87, 77],
 [G, 31, 33, 41, 44, 53, 63, 64, 74]
@@ -55,6 +55,8 @@ display_game(GameState, Player) :-
 	printPlayerTurn(Player)
 .
 
+
+printBoard(_, 0).
 printBoard([H|T], N) :-
 	N1 is N-1,
 	printLine(H, N1),
@@ -62,14 +64,13 @@ printBoard([H|T], N) :-
 	nl,
 	printBoard(T, N1)
 .
-printBoard([],0).
 
+printLine([], 0).
 printLine([H|T], N) :-
 	translate(H, Transl),
 	format('~*c| ~w ', [N*2, 0' , Transl]),
 	printLine(T, 0)
 .
-printLine([], 0).
 
 printSkull(HasSkull) :-
 	write(HasSkull),
