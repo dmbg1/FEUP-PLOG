@@ -8,11 +8,7 @@ initial([ 'Purple', 'Purple',
 	        [purple, empty, empty, green, empty, empty, white],
 	    [purple, purple, empty, empty, empty, empty, white, white],
   	[purple, purple, purple, empty, empty, empty, white, white, white],
-[purple, purple, purple, purple, empty, empty, white, white, white, white],
-[P, 101, 102, 103, 104, 91, 92, 93, 81, 82, 71],
-[W, 107, 108, 109, 110, 99, 98, 97, 88, 87, 77],
-[G, 31, 33, 41, 44, 53, 63, 64, 74]
-]
+[purple, purple, purple, purple, empty, empty, white, white, white, white]]
 ).
 
 changeSkull(GameStateOld, GameStateNew) :-
@@ -50,18 +46,21 @@ translate(white, 'W').
 
 display_game(GameState, Player) :- 
 	[Skull, _|Board] = GameState,
-	printBoard(Board, 10), 	% 10 lines board
+	write('    A B C D E F G H I J K L M N O P Q R S'), nl,
+	printBoard(Board, 10), 	% 10 lines board,
+	nl,
 	printSkull(Skull),
 	printPlayerTurn(Player)
 .
 
 
-printBoard(_, 0).
+printBoard([], 0).
 printBoard([H|T], N) :-
 	N1 is N-1,
+	N2 is 9-N1,	% For line coordinate display
+	write(N2), write(' '),
 	printLine(H, N1),
-	write('|'),
-	nl,
+	write('|'), nl,
 	printBoard(T, N1)
 .
 
