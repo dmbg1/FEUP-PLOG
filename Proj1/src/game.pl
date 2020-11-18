@@ -1,4 +1,3 @@
-
 changeSkull(GameStateOld, GameStateNew) :-
 	[Skull|Board] = GameStateOld,
 	Skull == 'Purple',

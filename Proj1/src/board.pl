@@ -30,7 +30,7 @@ printBoard([], 0).
 printBoard([H|T], N) :-
 	N1 is N-1,
 	N2 is 9-N1,	% For line coordinate display
-	format('~*c~*c', [N*2, 0' , (N2+1)*5-N2, 0'-]), nl,
+	format('~*c~*c', [N*2, 0' , 4*N2+5, 0'-]), nl,
 	write(N2), write(' '),
 	printLine(H, N1),
 	write('|'),nl,
