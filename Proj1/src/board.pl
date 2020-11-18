@@ -11,34 +11,6 @@ initial([ 'Purple', 'Purple',
 [purple, purple, purple, purple, empty, empty, white, white, white, white]]
 ).
 
-changeSkull(GameStateOld, GameStateNew) :-
-	[Skull|Board] = GameStateOld,
-	Skull == 'Purple',
-	SkullNew = 'Green',
-	GameStateNew = [SkullNew|Board]
-.
-
-changeSkull(GameStateOld, GameStateNew) :-
-	[Skull|Board] = GameStateOld,
-	Skull == 'Green',
-	SkullNew = 'Purple',
-	GameStateNew = [SkullNew|Board]
-.
-
-changeTurn(GameStateOld, GameStateNew) :-
-	[Gs, Turn|Board] = GameStateOld,
-	Turn == 'Purple',
-	NewTurn = 'Green',
-	GameStateNew =[Gs, NewTurn|Board]
-.
-
-changeTurn(GameStateOld, GameStateNew) :-
-	[Gs, Turn|Board] = GameStateOld,
-	Turn == 'Green',
-	NewTurn = 'Purple',
-	GameStateNew =[Gs, NewTurn|Board]
-.
-
 translate(empty, '.').
 translate(purple,'P').
 translate(green, 'G').
@@ -46,9 +18,9 @@ translate(white, 'W').
 
 display_game(GameState, Player) :- 
 	[Skull, _|Board] = GameState,
-	write('    A B C D E F G H I J K L M N O P Q R S'), nl,
 	printBoard(Board, 10), 	% 10 lines board,
-	nl,
+	format('  ~*c', [10*5-9, 0'-]), nl,
+	write('    A B C D E F G H I J K L M N O P Q R S'), nl, nl,
 	printSkull(Skull),
 	printPlayerTurn(Player)
 .
@@ -58,9 +30,10 @@ printBoard([], 0).
 printBoard([H|T], N) :-
 	N1 is N-1,
 	N2 is 9-N1,	% For line coordinate display
+	format('~*c~*c', [N*2, 0' , (N2+1)*5-N2, 0'-]), nl,
 	write(N2), write(' '),
 	printLine(H, N1),
-	write('|'), nl,
+	write('|'),nl,
 	printBoard(T, N1)
 .
 
