@@ -4,9 +4,9 @@ translate(green, 'G').
 translate(white, 'W'). 
 
 display_game(GameState, Player) :- 
-	[Skull, _|Board] = GameState,
+	[Skull, _|[Board]] = GameState,
 	printBoard(Board, 10), 	% 10 lines board,
-	format('  ~*c', [10*5-9, 0'-]), nl,
+	format('  ~*c', [41, 0'-]), nl,
 	write('    A B C D E F G H I J K L M N O P Q R S'), nl, nl,
 	printSkull(Skull),
 	printPlayerTurn(Player)
@@ -43,13 +43,19 @@ printPlayerTurn(Player) :-
 	nl
 . 
  
-inputPlayerMove(Game, StartCoord, EndCoord) :-
+inputPlayerMove(Ystart, Xstart, Yend, Xend) :-
 	write('Input start coord move: '),
 	read(StartCoord),
 	write('Input start end move: '),
 	read(EndCoord),
-	checkValidMove(Game, StartCoord, EndCoord)
-
+	parseCoord(StartCoord, Ystart, Xstart),
+	parseCoord(EndCoord, Yend, Xend)
+.
+inputGreenSkullMove(Ystart, Xstart, Yend, Xend) :-
+	write('Do you want to move a zombie(y/n)? '),
+	read(Input),
+	Input = y,
+	inputPlayerMove(Ystart, Xstart, Yend, Xend)
 .
 
 
