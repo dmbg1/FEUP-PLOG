@@ -1,27 +1,27 @@
 changeSkull(GameStateOld, GameStateNew) :-
 	[Skull|Board] = GameStateOld,
-	Skull == 'Purple',
-	SkullNew = 'Green',
+	Skull == purple,
+	SkullNew = green,
 	GameStateNew = [SkullNew|Board]
 .
 
 changeSkull(GameStateOld, GameStateNew) :-
 	[Skull|Board] = GameStateOld,
-	Skull == 'Green',
-	SkullNew = 'Purple',
+	Skull == green,
+	SkullNew = purple,
 	GameStateNew = [SkullNew|Board]
 .
 
 changeTurn(GameStateOld, GameStateNew) :-
 	[Gs, Turn|Board] = GameStateOld,
-	Turn == 'Purple',
-	NewTurn = 'Green',
+	Turn == purple,
+	NewTurn = green,
 	GameStateNew =[Gs, NewTurn|Board]
 .
 
 changeTurn(GameStateOld, GameStateNew) :-
 	[Gs, Turn|Board] = GameStateOld,
-	Turn == 'Green',
-	NewTurn = 'Purple',
+	Turn == green,
+	NewTurn = purple,
 	GameStateNew =[Gs, NewTurn|Board]
 .

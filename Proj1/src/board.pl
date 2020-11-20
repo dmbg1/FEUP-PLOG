@@ -1,5 +1,9 @@
-initial([ 'Purple', 'Purple',
-		         	               [empty],
+:- use_module(library(lists)).
+
+% [Green Skull, Turn, Board, PurpleCoords, WhiteCoords, GreenCoords]
+
+initial([ purple, purple,
+		         	               [[empty],
 							    [empty, empty],
 						    [green, empty, green],
 					    [green, empty, empty, green],
@@ -8,50 +12,81 @@ initial([ 'Purple', 'Purple',
 	        [purple, empty, empty, green, empty, empty, white],
 	    [purple, purple, empty, empty, empty, empty, white, white],
   	[purple, purple, purple, empty, empty, empty, white, white, white],
-[purple, purple, purple, purple, empty, empty, white, white, white, white]]
+[purple, purple, purple, purple, empty, empty, white, white, white, white]] 
+]
+
+% Digito das unidades indica o numero da peça dentro da linha = X
+% Digito das dezenas indica a linha = Y
+% 	Assim tem-se uma espécie de (x, y)
 ).
 
-translate(empty, '.').
-translate(purple,'P').
-translate(green, 'G').
-translate(white, 'W'). 
+getPlayerTurn(Game, Turn) :-
+	nth0(1, Game, Turn)
+.
 
-display_game(GameState, Player) :- 
-	[Skull, _|Board] = GameState,
-	printBoard(Board, 10), 	% 10 lines board,
-	format('  ~*c', [10*5-9, 0'-]), nl,
-	write('    A B C D E F G H I J K L M N O P Q R S'), nl, nl,
-	printSkull(Skull),
-	printPlayerTurn(Player)
+parseCoord(Coord, Y, X) :-
+	X is Coord rem 10,
+	Y is div(Coord, 10)	
+.
+
+checkValidCoord(Coord) :-
+	parseCoord(Coord, Y, X),
+	X >= 0,
+	X =< Y
+.
+
+content(Game, Coord, Content) :-
+	nth0(2, Game, Board),
+	parseCoord(Coord, Y, X),
+	nth0(Y, Board, Line),
+	nth0(X, Line, Content)
 .
 
 
-printBoard([], 0).
-printBoard([H|T], N) :-
-	N1 is N-1,
-	N2 is 9-N1,	% For line coordinate display
-	format('~*c~*c', [N*2, 0' , 4*N2+5, 0'-]), nl,
-	write(N2), write(' '),
-	printLine(H, N1),
-	write('|'),nl,
-	printBoard(T, N1)
+freeValidMove(StartCoord, EndCoord) :-
+	parseCoord(StartCoord, StartY, StartX),
+	parseCoord(EndCoord, EndY, EndX),
+	EndY - StartY =:= -1,
+	EndX - StartX =:= -1
+.
+freeValidMove(StartCoord, EndCoord) :-
+	parseCoord(StartCoord, StartY, StartX),
+	parseCoord(EndCoord, EndY, EndX),
+	EndY - StartY =:= -1,
+	EndX - StartX =:= 0
+.
+freeValidMove(StartCoord, EndCoord) :-
+	parseCoord(StartCoord, StartY, StartX),
+	parseCoord(EndCoord, EndY, EndX),
+	EndY - StartY =:= 0,
+	EndX - StartX =:= -1
+.
+freeValidMove(StartCoord, EndCoord) :-
+	parseCoord(StartCoord, StartY, StartX),
+	parseCoord(EndCoord, EndY, EndX),
+	EndY - StartY =:= 0,
+	EndX - StartX =:= 1
+.
+freeValidMove(StartCoord, EndCoord) :-
+	parseCoord(StartCoord, StartY, StartX),
+	parseCoord(EndCoord, EndY, EndX),
+	EndY - StartY =:= 1,
+	EndX - StartX =:= 0
+.
+freeValidMove(StartCoord, EndCoord) :-
+	parseCoord(StartCoord, StartY, StartX),
+	parseCoord(EndCoord, EndY, EndX),
+	EndY - StartY =:= 1,
+	EndX - StartX =:= 1
 .
 
-printLine([], 0).
-printLine([H|T], N) :-
-	translate(H, Transl),
-	format('~*c| ~w ', [N*2, 0' , Transl]),
-	printLine(T, 0)
-.
-
-printSkull(HasSkull) :-
-	write(HasSkull),
-	write(' has the Skull'),
-	nl
-.
-	
-printPlayerTurn(Player) :-
-	write(Player),
-	write('\'s Turn'),
-	nl
+checkValidMove(Game, StartCoord, EndCoord) :-
+	getPlayerTurn(Game, Turn),
+	checkValidCoord(StartCoord),
+	checkValidCoord(EndCoord),
+	content(Game, StartCoord, StartContent),
+	StartContent == Turn,
+	content(Game, EndCoord, EndContent),
+	EndContent == empty,
+	freeValidMove(StartCoord, EndCoord)
 .
