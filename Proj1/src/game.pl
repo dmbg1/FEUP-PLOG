@@ -39,27 +39,51 @@ setPiece(Piece, GameStateOld,GameStateNew, Y, X) :-
 .
 
 move(GameStateOld, GameStateNew, PieceColor) :-
-	(	PieceColor = green ->
-		inputGreenSkullMove(Ystart, Xstart, Yend, Xend);
-		PieceColor \= green ->
-		inputPlayerMove(Ystart, Xstart, Yend, Xend)
-	),
-	checkValidMove(GameStateOld, Ystart, Xstart, Yend, Xend, PieceColor),
+	PieceColor \= green,
+	inputPlayerMove(Ystart, Xstart, Yend, Xend),
+	checkValidMove(GameStateOld, Ystart, Xstart, Yend, Xend, PieceColor, Capture),
+	((	Capture = false,
 	setPiece(empty, GameStateOld, GameStateNew1, Ystart, Xstart),
-	setPiece(PieceColor, GameStateNew1, GameStateNew, Yend, Xend)
+	setPiece(PieceColor, GameStateNew1, GameStateNew, Yend, Xend) 
+	); ( Capture = true,
+	setPiece(empty, GameStateOld, GameStateNew1, Ystart, Xstart),
+	capturedCoord(Ystart, Xstart, Yend, Xend, Ycaptured, Xcaptured),
+	setPiece(empty, GameStateNew1, GameStateNew2, Ycaptured, Xcaptured),	
+	setPiece(PieceColor, GameStateNew2, GameStateNew, Yend, Xend) 
+	))
+.
+move(GameStateOld, GameStateNew, PieceColor) :-
+	PieceColor = green,
+	inputGreenSkullMove(Ystart, Xstart, Yend, Xend, DoneGS),
+	(( DoneGS = true,
+		checkValidMove(GameStateOld, Ystart, Xstart, Yend, Xend, PieceColor, Capture),
+			((	Capture = false,
+			setPiece(empty, GameStateOld, GameStateNew1, Ystart, Xstart),
+			setPiece(PieceColor, GameStateNew1, GameStateNew, Yend, Xend) 
+			); ( Capture = true,
+			setPiece(empty, GameStateOld, GameStateNew1, Ystart, Xstart),
+			capturedCoord(Ystart, Xstart, Yend, Xend, Ycaptured, Xcaptured),
+			setPiece(empty, GameStateNew1, GameStateNew2, Ycaptured, Xcaptured),	
+			setPiece(PieceColor, GameStateNew2, GameStateNew, Yend, Xend) 
+			))
+	) ; (DoneGS = false, GameStateNew = GameStateOld))
 .
 
 
-gameTurn(GameStateOld, GameStateNew, Turn) :- 
+gameTurn(GameStateOld, GameStateNew) :-
+	getPlayerTurn(GameStateOld, Turn), 
 	getGSPlayer(GameStateOld, Gs),
-	(	Gs = Turn ->
+	(	Gs = Turn,
 		move(GameStateOld, GameStateNew1, Turn),
 		% display talvez
 		move(GameStateNew1, GameStateNew2, green),
 		changeTurn(GameStateNew2, GameStateNew3),
-		changeSkull(GameStateNew3, GameStateNew);
-		Gs \= Turn ->
+		changeSkull(GameStateNew3, GameStateNew)
+	);(
+		Gs \= Turn,
 		move(GameStateOld, GameStateNew1, Turn),
 		changeTurn(GameStateNew1, GameStateNew)
 	)
 .
+
+

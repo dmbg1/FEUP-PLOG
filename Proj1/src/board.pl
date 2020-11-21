@@ -20,11 +20,14 @@ initial([ purple, purple,
 % 	Assim tem-se uma espécie de (x, y)
 ).
 
+getGSPlayer(Game, GS) :-
+	nth0(0, Game, GS)
+.
 getPlayerTurn(Game, Turn) :-
 	nth0(1, Game, Turn)
 .
-getGSPlayer(Game, GS) :-
-	nth0(0, Game, GS)
+getBoard(Game, Board) :-
+	nth0(2, Game, Board)
 .
 
 parseCoord(Coord, Y, X) :-
@@ -69,12 +72,68 @@ freeValidMove(StartY, StartX, EndY, EndX) :-
 	EndX - StartX =:= 1
 .
 
-checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor) :-
+capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
+	EndY - StartY =:= -2,
+	EndX - StartX =:= -2,
+	MidY is StartY - 1,
+	MidX is StartX - 1
+.
+capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
+	EndY - StartY =:= -2,
+	EndX - StartX =:= 0,
+	MidY is StartY - 1,
+	MidX is StartX
+.
+capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
+	EndY - StartY =:= 0,
+	EndX - StartX =:= -2,
+	MidY is StartY,
+	MidX is StartX - 1
+.
+capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
+	EndY - StartY =:= 0,
+	EndX - StartX =:= 2,
+	MidY is StartY,
+	MidX is StartX + 1
+.
+capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
+	EndY - StartY =:= 2,
+	EndX - StartX =:= 0,
+	MidY is StartY + 1,
+	MidX is StartX
+.
+capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
+	EndY - StartY =:= 2,
+	EndX - StartX =:= 2,
+	MidY is StartY + 1,
+	MidX is StartX + 1
+.
+
+captureValidMove(Game, StartY, StartX, EndY, EndX) :-
+	capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX),
+	content(Game, MidY, MidX, Content),
+	Content \= empty
+.
+
+
+checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
 	checkValidCoord(StartY, StartX),
 	checkValidCoord(EndY, EndX),
 	content(Game, StartY, StartX, StartContent),
-	StartContent = PieceColor,
+	StartContent == PieceColor,
 	content(Game, EndY, EndX, EndContent),
-	EndContent = empty,
-	freeValidMove(StartY, StartX, EndY, EndX)
+	EndContent == empty,
+	freeValidMove(StartY, StartX, EndY, EndX),
+	Capture = false
+.
+
+checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
+	checkValidCoord(StartY, StartX),
+	checkValidCoord(EndY, EndX),
+	content(Game, StartY, StartX, StartContent),
+	StartContent == PieceColor,
+	content(Game, EndY, EndX, EndContent),
+	EndContent == empty,
+	captureValidMove(Game, StartY, StartX, EndY, EndX),
+	Capture = true
 .

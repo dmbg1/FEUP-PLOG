@@ -1,10 +1,14 @@
+:- consult('board.pl').
+
 translate(empty, '.').
 translate(purple,'P').
 translate(green, 'G').
 translate(white, 'W'). 
 
-display_game(GameState, Player) :- 
-	[Skull, _|[Board]] = GameState,
+display_game(GameState) :- 
+	getPlayerTurn(GameState, Player),
+	getGSPlayer(GameState, Skull),
+	getBoard(GameState, Board),
 	printBoard(Board, 10), 	% 10 lines board,
 	format('  ~*c', [41, 0'-]), nl,
 	write('    A B C D E F G H I J K L M N O P Q R S'), nl, nl,
@@ -46,16 +50,22 @@ printPlayerTurn(Player) :-
 inputPlayerMove(Ystart, Xstart, Yend, Xend) :-
 	write('Input start coord move: '),
 	read(StartCoord),
-	write('Input start end move: '),
+	write('Input end coord move: '),
 	read(EndCoord),
 	parseCoord(StartCoord, Ystart, Xstart),
 	parseCoord(EndCoord, Yend, Xend)
 .
-inputGreenSkullMove(Ystart, Xstart, Yend, Xend) :-
+
+inputGreenSkullMove(Ystart, Xstart, Yend, Xend, Done) :-
 	write('Do you want to move a zombie(y/n)? '),
 	read(Input),
-	Input = y,
-	inputPlayerMove(Ystart, Xstart, Yend, Xend)
+
+	(	Input = y,
+		inputPlayerMove(Ystart, Xstart, Yend, Xend),
+		Done = true
+		);(
+		write('here'), Input = n, Done = false
+	)
 .
 
 

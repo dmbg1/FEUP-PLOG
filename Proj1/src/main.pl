@@ -2,8 +2,7 @@
 
 startGame :-
 	initial(GameState),
-	getPlayerTurn(GameState, Player),
-	display_game(GameState, Player)
+	display_game(GameState)
 .
 
 testValidMove :-
@@ -13,10 +12,7 @@ testValidMove :-
 
 testMove :-
 	initial(GameState),
-	getPlayerTurn(GameState, Player),
-	display_game(GameState, Player),
-	gameTurn(GameState, NGameState, Player),
-	getPlayerTurn(NGameState, NPlayer),
-	display_game(NGameState, NPlayer)
+	display_game(GameState),
+	gameTurn(GameState, NGameState),
+	display_game(NGameState)
 .
-
