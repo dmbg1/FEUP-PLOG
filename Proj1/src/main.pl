@@ -2,7 +2,7 @@
 
 
 gameLoop(GameOld) :-
-	% display_game(GameOld),
+	display_game(GameOld),
 	gameTurn(GameOld, GameNew),
 	checkEndGame(GameNew),
 	gameLoop(GameNew)

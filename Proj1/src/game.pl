@@ -65,7 +65,6 @@ movePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
 		WhiteCoordsNew = WhiteCoordsOld)),
 
 	GameNew = [Gs, Player, Board, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew]
-
 .
 
 capture(GameOld, GameNew, StartY, StartX, EndY, EndX):-
@@ -98,8 +97,20 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX):-
 .
 
 requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
-	inputPlayerMove(StartY, StartX, EndY, EndX),
-	checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture)
+	(
+		(PieceColor = green,
+		inputGreenSkullMove(DoneGS),
+			((DoneGS = true, 
+			inputPlayerMove(StartY, StartX, EndY, EndX),
+			checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture)
+			);
+			 (DoneGS = false, StartY = -1)
+			)
+		);
+		(PieceColor \= green,
+		inputPlayerMove(StartY, StartX, EndY, EndX),
+		checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture))
+	)
 .
 requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
 	write('That is a invalid move, try again'), nl,
@@ -108,33 +119,24 @@ requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
 
 
 move(GameStateOld, GameStateNew, PieceColor) :-
-	PieceColor \= green,
 	requestMove(GameStateOld, StartY, StartX, EndY, EndX, PieceColor, Capture),
-	movePiece(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX),
-	((Capture = false, GameStateNew = GameStateNew1); 
-	(Capture = true,
-		capture(GameStateNew1, GameStateNew2, StartY, StartX, EndY, EndX),
-		
-		getPlayerTurn(GameStateNew2, Turn),
-		getGSPlayer(GameStateNew2, GS), 
-		((GS = Turn, changeSkull(GameStateNew2, GameStateNew)); 
-		(GS \= Turn, GameStateNew = GameStateNew2))
-	))
-.
-move(GameStateOld, GameStateNew, PieceColor) :-
-	PieceColor = green,
-	inputGreenSkullMove(DoneGS),
-	(( DoneGS = true,
-		requestMove(GameStateOld, StartY, StartX, EndY, EndX, PieceColor, Capture),
-		movePiece(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX),
-			((Capture = false, 
-				GameStateNew = GameStateNew1); 
-			(Capture = true,
-				capture(GameStateNew1, GameStateNew2, StartY, StartX, EndY, EndX),
-				changeSkull(GameStateNew2, GameStateNew)
-			))
-	);
-	(DoneGS = false, GameStateNew = GameStateOld))
+	(
+		(StartY \= -1, 
+	 	movePiece(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX),
+	 	(	
+			(Capture = false, GameStateNew = GameStateNew1); 
+	 		(Capture = true, 
+			 	(PieceColor = green,
+			  	capture(GameStateNew1, GameStateNew2, StartY, StartX, EndY, EndX),
+			  	changeSkull(GameStateNew2, GameStateNew)
+			  	);
+			  	(PieceColor \= green), 
+			  	capture(GameStateNew1, GameStateNew, StartY, StartX, EndY, EndX)
+			)
+		)
+		);
+		(StartY = -1, GameStateNew = GameStateOld) % Player doesn't want to move green piece
+	)
 .
 
 
@@ -142,14 +144,16 @@ gameTurn(GameStateOld, GameStateNew) :-
 	getPlayerTurn(GameStateOld, Turn), 
 	move(GameStateOld, GameStateNew1, Turn),
 	getGSPlayer(GameStateNew1, Gs),
-	((	Gs = Turn,
+	(
+		(	Gs = Turn,
 		% display talvez
 		move(GameStateNew1, GameStateNew2, green),
 		changeTurn(GameStateNew2, GameStateNew)
-	);(
-		Gs \= Turn,
+		);
+		( 	Gs \= Turn,
 		changeTurn(GameStateNew1, GameStateNew)
-	))
+		)
+	)
 .
 
 
