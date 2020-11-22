@@ -75,7 +75,7 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap)
 		(CurrCap > 1, 
 	 	 write('Capture '), write(CurrCap), write(':'), nl, 
 	     ((requestNextCapture(GameOld, StartY, StartX, EndY, EndX, PieceColor));
-	     (!, fail)))
+	     (fail)))
   	),
 	movePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
 	capturedCoord(StartY, StartX, EndY, EndX, CapturedY, CapturedX),
@@ -105,7 +105,7 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap)
 	NCap1 is NCap - 1,
 	CurrCap1 is CurrCap + 1,
 
-	capture(GameNew2, GameNew, EndY, EndX, _EY, _EX, PieceColor, NCap1, CurrCap1),
+	capture(GameNew2, GameNew, EndY, EndX, _EY, _EX, PieceColor, NCap1, CurrCap1)
 .
 
 requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap) :-
@@ -152,14 +152,14 @@ move(GameStateOld, GameStateNew, PieceColor) :-
 					capture(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX, PieceColor, NCap, 1),
 				  	changeSkull(GameStateNew1, GameStateNew));
 				 (	
-					write('Restarting play...'), nl, nl,
+					write('Restarting turn...'), nl, nl,
 					move(GameStateOld, GameStateNew, PieceColor))
 				 ));
 			  	(PieceColor \= green, 
 				((
 					capture(GameStateOld, GameStateNew, StartY, StartX, EndY, EndX, PieceColor, NCap, 1));
 				 (
-					write('Restarting play...'), nl, nl,
+					write('Restarting turn...'), nl, nl,
 					move(GameStateOld, GameStateNew, PieceColor))
 				 ))
 			)
