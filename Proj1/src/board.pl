@@ -26,7 +26,7 @@ initial([ purple, purple,
 % 	Assim tem-se uma espécie de (x, y)
 ).
 */
-initial([ purple, white,
+initial([ purple, purple,
 		         	               [[empty],
 							    [empty, empty],
 						    [green, empty, green],
@@ -35,8 +35,8 @@ initial([ purple, white,
 		        [empty, empty, green, green, empty, empty],
 	        [empty, empty, empty, green, empty, empty, white],
 	    [empty, empty, empty, empty, empty, empty, white, white],
-  	[empty, empty, empty, empty, empty, empty, white, white, white],
-[empty, empty, empty, empty, empty, purple, white, white, white, white]],
+  	[empty, empty, empty, white, white, white, empty, white, white],
+[empty, empty, empty, empty, empty, empty, purple, empty, white, white]],
 0,  
 0, 
 0,
@@ -59,6 +59,15 @@ getPlayerTurn(Game, Turn) :-
 .
 getBoard(Game, Board) :-
 	nth0(2, Game, Board)
+.
+
+setPiece(Piece, GameStateOld,GameStateNew, Y, X) :-
+	[Gs, Player, Board, PP, WP, ZP | T] = GameStateOld,
+	nth0(Y, Board, Row, TmpBoard),
+	nth0(X, Row, _, TmpRow),
+	nth0(X, NewRow, Piece, TmpRow),
+	nth0(Y, NewBoard, NewRow, TmpBoard),
+	GameStateNew = [Gs, Player, NewBoard, PP, WP, ZP | T]
 .
 
 purpleEaten(GameOld, GameNew) :-
@@ -170,9 +179,9 @@ checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
 	checkValidCoord(StartY, StartX),
 	checkValidCoord(EndY, EndX),
 	content(Game, StartY, StartX, StartContent),
-	StartContent == PieceColor,
+	StartContent = PieceColor,
 	content(Game, EndY, EndX, EndContent),
-	EndContent == empty,
+	EndContent = empty,
 	freeValidMove(StartY, StartX, EndY, EndX),
 	Capture = false
 .
@@ -181,9 +190,9 @@ checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
 	checkValidCoord(StartY, StartX),
 	checkValidCoord(EndY, EndX),
 	content(Game, StartY, StartX, StartContent),
-	StartContent == PieceColor,
+	StartContent = PieceColor,
 	content(Game, EndY, EndX, EndContent),
-	EndContent == empty,
+	EndContent = empty,
 	captureValidMove(Game, StartY, StartX, EndY, EndX),
 	Capture = true
 .
@@ -244,7 +253,6 @@ checkEndGame(Game) :-
 	countPurpleOnEdge(PCoords, PEdgePoints, PLength),
 	countWhiteOnEdge(WCoords, WEdgePoints, WLength),
 	countGreenOnEdge(ZCoords, ZEdgePoints, ZLength),
-	format('~nPL: ~w~n', [PLength]),
 	PLength \= 0,
 	WLength \= 0,
 	ZLength \= 0,

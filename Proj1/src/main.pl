@@ -4,8 +4,11 @@
 gameLoop(GameOld) :-
 	display_game(GameOld),
 	gameTurn(GameOld, GameNew),
-	checkEndGame(GameNew),
-	gameLoop(GameNew)
+	(
+		(checkEndGame(GameNew), % checkEndGame returns yes if game is not over yet and no otherwise
+	 	gameLoop(GameNew));
+		(display_game(GameNew), write('X wins'), nl)	% winScreen
+	)
 .
 
 play :-

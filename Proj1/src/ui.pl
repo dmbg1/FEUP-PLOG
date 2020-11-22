@@ -58,17 +58,33 @@ printPlayersPoints(Game) :-
 	calcGreenPoints(Game, Green),
 	format('~nPoints:~n    Purple - ~w~n', [Purple]),
 	format('    White - ~w~n', [White]),
-	format('    Zombies - ~w~n', [Green])
+	format('    Zombies - ~w~n~n', [Green])
 .
 
 % ---
- 
-inputPlayerMove(Ystart, Xstart, Yend, Xend) :-
+
+inputNumberOfCaptures(NCap) :-
+	write('How many captures will you make in this play (0 for none)? '),
+	read(NCap),
+	nl
+.
+inputPlayerMove(Ystart, Xstart, Yend, Xend, NCap) :-
+	inputNumberOfCaptures(NCap),
+	((NCap \= 0, write('Capture '), write('1'), write(':'), nl); (NCap = 0)),
 	write('Input start coord move: '),
 	read(StartCoord),
 	write('Input end coord move: '),
 	read(EndCoord),
+	nl,
 	parseCoord(StartCoord, Ystart, Xstart),
+	parseCoord(EndCoord, Yend, Xend)
+.
+
+inputNextCapture(Yend, Xend) :-
+	write('Input end coord move (0 to restart play): '),
+	read(EndCoord),
+	nl,
+	((EndCoord = 0, fail); (EndCoord \= 0)),
 	parseCoord(EndCoord, Yend, Xend)
 .
 
@@ -76,7 +92,8 @@ inputGreenSkullMove(Done) :-
 	write('Do you want to move a zombie(y/n)? '),
 	read(Input),
 	((	Input = y, Done = true);
-	 ( Input = n, Done = false))
+	 ( Input = n, Done = false)),
+	nl
 .
 inputGreenSkullMove(Done) :-
 	write('Wrong answer, try again'), nl,

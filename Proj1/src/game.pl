@@ -29,15 +29,6 @@ changeTurn(GameStateOld, GameStateNew) :-
 	GameStateNew = [Gs, NewTurn|Board]
 .
 
-setPiece(Piece, GameStateOld,GameStateNew, Y, X) :-
-	[Gs, Player, Board, PP, WP, ZP | T] = GameStateOld,
-	nth0(Y, Board, Row, TmpBoard),
-	nth0(X, Row, _, TmpRow),
-	nth0(X, NewRow, Piece, TmpRow),
-	nth0(Y, NewBoard, NewRow, TmpBoard),
-	GameStateNew = [Gs, Player, NewBoard, PP, WP, ZP | T]
-.
-
 movePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
 	content(GameOld, StartY, StartX, Piece),
 	setPiece(empty, GameOld, GameAux, StartY, StartX),
@@ -67,24 +58,41 @@ movePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
 	GameNew = [Gs, Player, Board, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew]
 .
 
-capture(GameOld, GameNew, StartY, StartX, EndY, EndX):-
+
+requestNextCapture(Game, StartY, StartX, EndY, EndX, PieceColor) :- 
+	inputNextCapture(EndY, EndX),
+	((checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture),
+	  Capture = true);
+	  (write('That is not a capture! Try again'), nl, nl,
+	   requestNextCapture(Game, StartY, StartX, EndY, EndX, PieceColor))
+	)
+.
+
+capture(GameOld, GameNew, _, _, _,_, _, 0, _) :- GameNew = GameOld.
+capture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap):-
+	(
+		(CurrCap = 1); 
+		(CurrCap > 1, 
+	 	 write('Capture '), write(CurrCap), write(':'), nl, 
+	     ((requestNextCapture(GameOld, StartY, StartX, EndY, EndX, PieceColor));
+	     (!, fail)))
+  	),
+	movePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
 	capturedCoord(StartY, StartX, EndY, EndX, CapturedY, CapturedX),
 	CapturedCoord is (CapturedY * 10) + CapturedX,
-	
-	[GS, T, B, _, _, _, PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld] = GameOld,
-	content(GameOld, CapturedY, CapturedX, Content),
-	((Content = purple, purpleEaten(GameOld, GameAux), 
+	[GS, T, B, _, _, _, PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld] = GameNew1,
+	content(GameNew1, CapturedY, CapturedX, Content),
+	((Content = purple, purpleEaten(GameNew1, GameAux), 
 		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
 		delete(PurpleCoordsOld, CapturedCoord, PurpleCoordsNew),
-		format('HERE: ~w ~w ~w~n', [PurpleCoordsOld, PurpleCoordsNew, CapturedCoord]),
 		WhiteCoordsNew = WhiteCoordsOld,
 		ZombieCoordsNew = ZombieCoordsOld);
-	 (Content = white, whiteEaten(GameOld, GameAux), 
+	 (Content = white, whiteEaten(GameNew1, GameAux), 
 		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
 	 	delete(WhiteCoordsOld, CapturedCoord, WhiteCoordsNew),
 	 	PurpleCoordsNew = PurpleCoordsOld,
 		ZombieCoordsNew = ZombieCoordsOld);
-	 (Content = green, zombieEaten(GameOld, GameAux),
+	 (Content = green, zombieEaten(GameNew1, GameAux),
 		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
 	  	delete(ZombieCoordsOld, CapturedCoord, ZombieCoordsNew),
 		PurpleCoordsNew = PurpleCoordsOld,
@@ -92,51 +100,73 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX):-
 	
 	GameAux1 = [GS, T, B, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew],
 
-	setPiece(empty, GameAux1, GameNew, CapturedY, CapturedX)
+	setPiece(empty, GameAux1, GameNew2, CapturedY, CapturedX),
 
+	NCap1 is NCap - 1,
+	CurrCap1 is CurrCap + 1,
+
+	capture(GameNew2, GameNew, EndY, EndX, _EY, _EX, PieceColor, NCap1, CurrCap1),
 .
 
-requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
+requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap) :-
 	(
 		(PieceColor = green,
 		inputGreenSkullMove(DoneGS),
 			((DoneGS = true, 
-			inputPlayerMove(StartY, StartX, EndY, EndX),
-			checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture)
+			inputPlayerMove(StartY, StartX, EndY, EndX, NCap),
+			checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture),
+				((Capture = true, NCap > 0);
+				 (Capture = false, NCap = 0);
+		 		 (Capture = true, NCap = 0, write('That is a capture!'), nl, fail);
+		 		 (Capture = false, NCap > 0, write('That isn\'t a capture!'), nl, fail))
 			);
 			 (DoneGS = false, StartY = -1)
 			)
 		);
 		(PieceColor \= green,
-		inputPlayerMove(StartY, StartX, EndY, EndX),
-		checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture))
+		inputPlayerMove(StartY, StartX, EndY, EndX, NCap),
+		checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture),
+			((Capture = true, NCap > 0);
+			 (Capture = false, NCap = 0);
+		 	 (Capture = true, NCap = 0, write('That is a capture!'), nl, fail);
+			 (Capture = false, NCap > 0, write('That isn\'t a capture!'), nl, fail))
+		)
 	)
 .
-requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
-	write('That is a invalid move, try again'), nl,
-	requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture)
+requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap) :-
+	write('That is an invalid play, try again'), nl, nl,
+	requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap)
 .
 
-
 move(GameStateOld, GameStateNew, PieceColor) :-
-	requestMove(GameStateOld, StartY, StartX, EndY, EndX, PieceColor, Capture),
+	requestMove(GameStateOld, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap),
 	(
 		(StartY \= -1, 
-	 	movePiece(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX),
 	 	(	
-			(Capture = false, GameStateNew = GameStateNew1); 
+			(Capture = false,
+			 movePiece(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX),
+		     GameStateNew = GameStateNew1); 
 	 		(Capture = true, 
 			 	(PieceColor = green,
-			  	capture(GameStateNew1, GameStateNew2, StartY, StartX, EndY, EndX),
-			  	changeSkull(GameStateNew2, GameStateNew)
-			  	);
-			  	(PieceColor \= green), 
-			  	capture(GameStateNew1, GameStateNew, StartY, StartX, EndY, EndX)
+			  	((
+					capture(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX, PieceColor, NCap, 1),
+				  	changeSkull(GameStateNew1, GameStateNew));
+				 (	
+					write('Restarting play...'), nl, nl,
+					move(GameStateOld, GameStateNew, PieceColor))
+				 ));
+			  	(PieceColor \= green, 
+				((
+					capture(GameStateOld, GameStateNew, StartY, StartX, EndY, EndX, PieceColor, NCap, 1));
+				 (
+					write('Restarting play...'), nl, nl,
+					move(GameStateOld, GameStateNew, PieceColor))
+				 ))
 			)
 		)
 		);
 		(StartY = -1, GameStateNew = GameStateOld) % Player doesn't want to move green piece
-	)
+		)
 .
 
 

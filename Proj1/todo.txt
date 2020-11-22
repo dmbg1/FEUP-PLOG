@@ -1,4 +1,2 @@
-- checkEndGame (not able to terminate game)
 - capturas multiplas
-- mudar coordenadas com jogadas (done)
 - colocarmos uma letra no input da erro
