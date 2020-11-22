@@ -77,6 +77,7 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX):-
 	((Content = purple, purpleEaten(GameOld, GameAux), 
 		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
 		delete(PurpleCoordsOld, CapturedCoord, PurpleCoordsNew),
+		format('HERE: ~w ~w ~w~n', [PurpleCoordsOld, PurpleCoordsNew, CapturedCoord]),
 		WhiteCoordsNew = WhiteCoordsOld,
 		ZombieCoordsNew = ZombieCoordsOld);
 	 (Content = white, whiteEaten(GameOld, GameAux), 

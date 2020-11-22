@@ -1,7 +1,7 @@
 :- use_module(library(lists)).
 
 % [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
-
+/*
 initial([ purple, purple,
 		         	               [[empty],
 							    [empty, empty],
@@ -25,6 +25,31 @@ initial([ purple, purple,
 % Digito das dezenas indica a linha = Y
 % 	Assim tem-se uma espécie de (x, y)
 ).
+*/
+initial([ purple, white,
+		         	               [[empty],
+							    [empty, empty],
+						    [green, empty, green],
+					    [green, empty, empty, green],
+			        [empty, empty, green, empty, empty],
+		        [empty, empty, green, green, empty, empty],
+	        [empty, empty, empty, green, empty, empty, white],
+	    [empty, empty, empty, empty, empty, empty, white, white],
+  	[empty, empty, empty, empty, empty, empty, white, white, white],
+[empty, empty, empty, empty, empty, purple, white, white, white, white]],
+0,  
+0, 
+0,
+[95],	% Purple Coords
+[66, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
+[20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
+]  
+
+% Digito das unidades indica o numero da peça dentro da linha = X
+% Digito das dezenas indica a linha = Y
+% 	Assim tem-se uma espécie de (x, y)
+).
+
 
 getGSPlayer(Game, GS) :-
 	nth0(0, Game, GS)
@@ -40,7 +65,6 @@ purpleEaten(GameOld, GameNew) :-
 	[GS, Turn, Board, PP, WP, ZP | T] = GameOld,
 	W1 is WP + 1,
 	Z1 is ZP + 1,
-	format('HERE: ~w ~w ~w~n', [PP, W1, Z1]),
 	GameNew = [GS, Turn, Board, PP, W1, Z1 | T]
 .
 whiteEaten(GameOld, GameNew) :-
@@ -198,7 +222,7 @@ calcWhitePoints(Game, Points) :-
 	Points is EatenPoints + EdgePoints
 .
 
-countGreenOnEdge([], 0, 0).
+countGreenOnEdge([], 0, -1).
 countGreenOnEdge(Coords, Nr, Length) :-
 	[Coord | Rest] = Coords,
 	countGreenOnEdge(Rest, NrRest, Len),
@@ -220,7 +244,10 @@ checkEndGame(Game) :-
 	countPurpleOnEdge(PCoords, PEdgePoints, PLength),
 	countWhiteOnEdge(WCoords, WEdgePoints, WLength),
 	countGreenOnEdge(ZCoords, ZEdgePoints, ZLength),
+	nl,write(PCoords),
+	format('~nPL: ~w~n', [PLength]),
 	PLength \= 0,
+	write(aaa),
 	WLength \= 0,
 	ZLength \= 0,
 	PEdgePoints =\= 2 * PLength,
