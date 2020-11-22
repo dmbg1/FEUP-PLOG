@@ -1,0 +1,3 @@
+- checkEndGame (done)
+- capturas multiplas
+- mudar coordenadas com jogadas

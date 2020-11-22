@@ -1,8 +1,16 @@
 :- consult('game.pl').
 
-startGame :-
+
+gameLoop(GameOld) :-
+	display_game(GameOld),
+	gameTurn(GameOld, GameNew),
+	checkEndGame(GameNew),
+	gameLoop(GameNew)
+.
+
+play :-
 	initial(GameState),
-	display_game(GameState)
+	gameLoop(GameState)
 .
 
 testValidMove :-
@@ -14,9 +22,5 @@ testMove :-
 	initial(GameState),
 	display_game(GameState),
 	gameTurn(GameState, NGameState),
-	display_game(NGameState),
-	getPurplePoints(NGameState, PP),
-	getWhitePoints(NGameState, WP),
-	getZombiesPoints(NGameState, ZP),
-	nl, write(PP), nl, write(WP), nl, write(ZP)
+	display_game(NGameState)
 .

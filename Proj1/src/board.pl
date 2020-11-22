@@ -1,6 +1,6 @@
 :- use_module(library(lists)).
 
-% [Green Skull, Turn, Board, PurplePoints, WhitePoints, ZombiePoints]
+% [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
 
 initial([ purple, purple,
 		         	               [[empty],
@@ -15,7 +15,11 @@ initial([ purple, purple,
 [purple, purple, purple, purple, empty, empty, white, white, white, white]],
 0,  
 0, 
-0]  
+0,
+[60, 70, 71, 80, 81, 82, 90, 91, 92, 93],	% Purple Coords
+[66, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
+[20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
+]  
 
 % Digito das unidades indica o numero da peça dentro da linha = X
 % Digito das dezenas indica a linha = Y
@@ -31,33 +35,25 @@ getPlayerTurn(Game, Turn) :-
 getBoard(Game, Board) :-
 	nth0(2, Game, Board)
 .
-getPurplePoints(Game, PurplePoints) :-
-	nth0(3, Game, PurplePoints)
-.
-getWhitePoints(Game, WhitePoints) :-
-	nth0(4, Game, WhitePoints)
-.
-getZombiesPoints(Game, ZombiesPoints) :-
-	nth0(5, Game, ZombiesPoints)
-.
 
 purpleEaten(GameOld, GameNew) :-
-	[GS, Turn, Board, PP, WP, ZP] = GameOld,
+	[GS, Turn, Board, PP, WP, ZP | T] = GameOld,
 	W1 is WP + 1,
 	Z1 is ZP + 1,
-	GameNew = [GS, Turn, Board, PP, W1, Z1]
+	format('HERE: ~w ~w ~w~n', [PP, W1, Z1]),
+	GameNew = [GS, Turn, Board, PP, W1, Z1 | T]
 .
 whiteEaten(GameOld, GameNew) :-
-	[GS, Turn, Board, PP, WP, ZP] = GameOld,
+	[GS, Turn, Board, PP, WP, ZP | T] = GameOld,
 	P1 is PP + 1,
 	Z1 is ZP + 1,
-	GameNew = [GS, Turn, Board, P1, WP, Z1]
+	GameNew = [GS, Turn, Board, P1, WP, Z1 | T]
 .
 zombieEaten(GameOld, GameNew) :-
-	[GS, Turn, Board, PP, WP, ZP] = GameOld,
+	[GS, Turn, Board, PP, WP, ZP | T] = GameOld,
 	P1 is PP + 1,
 	W1 is WP + 1,
-	GameNew = [GS, Turn, Board, P1, W1, ZP]
+	GameNew = [GS, Turn, Board, P1, W1, ZP | T]
 .
 
 parseCoord(Coord, Y, X) :-
@@ -166,4 +162,69 @@ checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
 	EndContent == empty,
 	captureValidMove(Game, StartY, StartX, EndY, EndX),
 	Capture = true
+.
+
+countPurpleOnEdge([], 0, 0).
+countPurpleOnEdge(Coords, Nr, Length) :-
+	[Coord | Rest] = Coords,
+	countPurpleOnEdge(Rest, NrRest, Len),
+	Length is Len + 1,
+	parseCoord(Coord, Y, X),
+	((Y = X,
+		Nr is NrRest + 2);
+	(Y \= X,
+		Nr is NrRest))
+.
+calcPurplePoints(Game, Points) :-
+	[_, _, _, EatenPoints, _, _, Coords | _ ] = Game,
+	countPurpleOnEdge(Coords, EdgePoints, _),
+	Points is EatenPoints + EdgePoints
+.
+
+countWhiteOnEdge([], 0, 0).
+countWhiteOnEdge(Coords, Nr, Length) :-
+	[Coord | Rest] = Coords,
+	countWhiteOnEdge(Rest, NrRest, Len),
+	Length is Len + 1,
+	parseCoord(Coord, _, X),
+	((X = 0,
+		Nr is NrRest + 2);
+	(X \= 0,
+		Nr is NrRest))
+.
+calcWhitePoints(Game, Points) :-
+	[_, _, _, _, EatenPoints, _, _, Coords | _ ] = Game,
+	countWhiteOnEdge(Coords, EdgePoints, _),
+	Points is EatenPoints + EdgePoints
+.
+
+countGreenOnEdge([], 0, 0).
+countGreenOnEdge(Coords, Nr, Length) :-
+	[Coord | Rest] = Coords,
+	countGreenOnEdge(Rest, NrRest, Len),
+	Length is Len + 1,
+	parseCoord(Coord, Y, _),
+	((Y = 9,
+		Nr is NrRest + 2);
+	(Y \= 9,
+		Nr is NrRest))
+.
+calcGreenPoints(Game, Points) :-
+	[_, _, _, _, _, EatenPoints, _, _, Coords] = Game,
+	countGreenOnEdge(Coords, EdgePoints, _),
+	Points is EatenPoints + EdgePoints
+.
+
+checkEndGame(Game) :-
+	[_, _, _, _, _, _, PCoords, WCoords, ZCoords] = Game,
+	countPurpleOnEdge(PCoords, PEdgePoints, PLength),
+	countWhiteOnEdge(WCoords, WEdgePoints, WLength),
+	countGreenOnEdge(ZCoords, ZEdgePoints, ZLength),
+	PLength \= 0,
+	WLength \= 0,
+	ZLength \= 0,
+	PEdgePoints =\= 2 * PLength,
+	WEdgePoints =\= 2 * WLength,
+	ZEdgePoints =\= 2 * ZLength
+
 .

@@ -5,15 +5,18 @@ translate(purple,'P').
 translate(green, 'G').
 translate(white, 'W'). 
 
+capitalize(purple, 'Purple').
+capitalize(white, 'White').
+
 display_game(GameState) :- 
 	getPlayerTurn(GameState, Player),
 	getGSPlayer(GameState, Skull),
 	getBoard(GameState, Board),
 	printBoard(Board, 10), 	% 10 lines board,
 	format('  ~*c', [41, 0'-]), nl,
-	write('    A B C D E F G H I J K L M N O P Q R S'), nl, nl,
 	printSkull(Skull),
-	printPlayerTurn(Player)
+	printPlayerTurn(Player),
+	printPlayersPoints(GameState)
 .
 
 printLine([], 0).
@@ -36,16 +39,29 @@ printBoard([H|T], N) :-
 
 
 printSkull(HasSkull) :-
-	write(HasSkull),
+	capitalize(HasSkull, CappedSkull),
+	write(CappedSkull),
 	write(' has the Skull'),
 	nl
 .
 	
 printPlayerTurn(Player) :-
-	write(Player),
+	capitalize(Player, CappedPlayer),
+	write(CappedPlayer),
 	write('\'s Turn'),
 	nl
 . 
+
+printPlayersPoints(Game) :-
+	calcPurplePoints(Game, Purple),
+	calcWhitePoints(Game, White),
+	calcGreenPoints(Game, Green),
+	format('~nPoints:~n    Purple - ~w~n', [Purple]),
+	format('    White - ~w~n', [White]),
+	format('    Zombies - ~w~n', [Green])
+.
+
+% ---
  
 inputPlayerMove(Ystart, Xstart, Yend, Xend) :-
 	write('Input start coord move: '),
@@ -56,16 +72,18 @@ inputPlayerMove(Ystart, Xstart, Yend, Xend) :-
 	parseCoord(EndCoord, Yend, Xend)
 .
 
-inputGreenSkullMove(Ystart, Xstart, Yend, Xend, Done) :-
+inputGreenSkullMove(Done) :-
 	write('Do you want to move a zombie(y/n)? '),
 	read(Input),
 
-	((	Input = y,
-		inputPlayerMove(Ystart, Xstart, Yend, Xend),
-		Done = true
+	((	Input = y, Done = true
 		);(
 		 Input = n, Done = false
 	))
+.
+inputGreenSkullMove(Done) :-
+	write('Wrong answer, try again'), nl,
+	inputGreenSkullMove(Done)
 .
 
 
