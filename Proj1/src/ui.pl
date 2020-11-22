@@ -60,12 +60,12 @@ inputGreenSkullMove(Ystart, Xstart, Yend, Xend, Done) :-
 	write('Do you want to move a zombie(y/n)? '),
 	read(Input),
 
-	(	Input = y,
+	((	Input = y,
 		inputPlayerMove(Ystart, Xstart, Yend, Xend),
 		Done = true
 		);(
-		write('here'), Input = n, Done = false
-	)
+		 Input = n, Done = false
+	))
 .
 
 

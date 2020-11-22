@@ -30,41 +30,49 @@ changeTurn(GameStateOld, GameStateNew) :-
 .
 
 setPiece(Piece, GameStateOld,GameStateNew, Y, X) :-
-	[Gs, Player|[Board]] = GameStateOld,
+	[Gs, Player, Board, PP, WP, ZP] = GameStateOld,
 	nth0(Y, Board, Row, TmpBoard),
 	nth0(X, Row, _, TmpRow),
 	nth0(X, NewRow, Piece, TmpRow),
 	nth0(Y, NewBoard, NewRow, TmpBoard),
-	GameStateNew = [Gs, Player| [NewBoard]]
+	GameStateNew = [Gs, Player, NewBoard, PP, WP, ZP]
 .
+
+capture(GameOld, GameNew, StartY, StartX, EndY, EndX):-
+	capturedCoord(StartY, StartX, EndY, EndX, CapturedY, CapturedX),
+	content(GameOld, CapturedY, CapturedX, Content),
+	((Content = purple, purpleEaten(GameOld, GameAux));
+	 (Content = white, whiteEaten(GameOld, GameAux));
+	 (Content = green, greenEaten(GameOld, GameAux))),
+	setPiece(empty, GameAux, GameNew, CapturedY, CapturedX)
+.
+
 
 move(GameStateOld, GameStateNew, PieceColor) :-
 	PieceColor \= green,
-	inputPlayerMove(Ystart, Xstart, Yend, Xend),
-	checkValidMove(GameStateOld, Ystart, Xstart, Yend, Xend, PieceColor, Capture),
+	inputPlayerMove(StartY, StartX, EndY, EndX),
+	checkValidMove(GameStateOld, StartY, StartX, EndY, EndX, PieceColor, Capture),
 	((	Capture = false,
-	setPiece(empty, GameStateOld, GameStateNew1, Ystart, Xstart),
-	setPiece(PieceColor, GameStateNew1, GameStateNew, Yend, Xend) 
+	setPiece(empty, GameStateOld, GameStateNew1, StartY, StartX),
+	setPiece(PieceColor, GameStateNew1, GameStateNew, EndY, EndX) 
 	); ( Capture = true,
-	setPiece(empty, GameStateOld, GameStateNew1, Ystart, Xstart),
-	capturedCoord(Ystart, Xstart, Yend, Xend, Ycaptured, Xcaptured),
-	setPiece(empty, GameStateNew1, GameStateNew2, Ycaptured, Xcaptured),	
-	setPiece(PieceColor, GameStateNew2, GameStateNew, Yend, Xend) 
+	setPiece(empty, GameStateOld, GameStateNew1, StartY, StartX),
+	capture(GameStateNew1, GameStateNew2, StartY, StartX, EndY, EndX),
+	setPiece(PieceColor, GameStateNew2, GameStateNew, EndY, EndX) 
 	))
 .
 move(GameStateOld, GameStateNew, PieceColor) :-
 	PieceColor = green,
-	inputGreenSkullMove(Ystart, Xstart, Yend, Xend, DoneGS),
+	inputGreenSkullMove(StartY, StartX, EndY, EndX, DoneGS),
 	(( DoneGS = true,
-		checkValidMove(GameStateOld, Ystart, Xstart, Yend, Xend, PieceColor, Capture),
+		checkValidMove(GameStateOld, StartY, StartX, EndY, EndX, PieceColor, Capture),
 			((	Capture = false,
-			setPiece(empty, GameStateOld, GameStateNew1, Ystart, Xstart),
-			setPiece(PieceColor, GameStateNew1, GameStateNew, Yend, Xend) 
+			setPiece(empty, GameStateOld, GameStateNew1, StartY, StartX),
+			setPiece(PieceColor, GameStateNew1, GameStateNew, EndY, EndX) 
 			); ( Capture = true,
-			setPiece(empty, GameStateOld, GameStateNew1, Ystart, Xstart),
-			capturedCoord(Ystart, Xstart, Yend, Xend, Ycaptured, Xcaptured),
-			setPiece(empty, GameStateNew1, GameStateNew2, Ycaptured, Xcaptured),	
-			setPiece(PieceColor, GameStateNew2, GameStateNew, Yend, Xend) 
+			setPiece(empty, GameStateOld, GameStateNew1, StartY, StartX),
+			capture(GameStateNew1, GameStateNew2, StartY, StartX, EndY, EndX),
+			setPiece(PieceColor, GameStateNew2, GameStateNew, EndY, EndX) 
 			))
 	) ; (DoneGS = false, GameStateNew = GameStateOld))
 .

@@ -1,6 +1,6 @@
 :- use_module(library(lists)).
 
-% [Green Skull, Turn, Board, PurpleCoords, WhiteCoords, GreenCoords]
+% [Green Skull, Turn, Board, PurplePoints, WhitePoints, ZombiePoints]
 
 initial([ purple, purple,
 		         	               [[empty],
@@ -12,8 +12,10 @@ initial([ purple, purple,
 	        [purple, empty, empty, green, empty, empty, white],
 	    [purple, purple, empty, empty, empty, empty, white, white],
   	[purple, purple, purple, empty, empty, empty, white, white, white],
-[purple, purple, purple, purple, empty, empty, white, white, white, white]] 
-]
+[purple, purple, purple, purple, empty, empty, white, white, white, white]],
+0,  
+0, 
+0]  
 
 % Digito das unidades indica o numero da peça dentro da linha = X
 % Digito das dezenas indica a linha = Y
@@ -28,6 +30,34 @@ getPlayerTurn(Game, Turn) :-
 .
 getBoard(Game, Board) :-
 	nth0(2, Game, Board)
+.
+getPurplePoints(Game, PurplePoints) :-
+	nth0(3, Game, PurplePoints)
+.
+getWhitePoints(Game, WhitePoints) :-
+	nth0(4, Game, WhitePoints)
+.
+getZombiesPoints(Game, ZombiesPoints) :-
+	nth0(5, Game, ZombiesPoints)
+.
+
+purpleEaten(GameOld, GameNew) :-
+	[GS, Turn, Board, PP, WP, ZP] = GameOld,
+	W1 is WP + 1,
+	Z1 is ZP + 1,
+	GameNew = [GS, Turn, Board, PP, W1, Z1]
+.
+whiteEaten(GameOld, GameNew) :-
+	[GS, Turn, Board, PP, WP, ZP] = GameOld,
+	P1 is PP + 1,
+	Z1 is ZP + 1,
+	GameNew = [GS, Turn, Board, P1, WP, Z1]
+.
+zombieEaten(GameOld, GameNew) :-
+	[GS, Turn, Board, PP, WP, ZP] = GameOld,
+	P1 is PP + 1,
+	W1 is WP + 1,
+	GameNew = [GS, Turn, Board, P1, W1, ZP]
 .
 
 parseCoord(Coord, Y, X) :-
