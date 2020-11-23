@@ -83,10 +83,10 @@ inputPlayerMove(Ystart, Xstart, Yend, Xend, NCap) :-
 .
 
 inputNextCapture(Yend, Xend) :-
-	write('Input end coord move (0 to restart turn): '),
+	write('Input end coord move (-1 to restart turn): '),
 	read(EndCoord),
 	nl,
-	((EndCoord = 0, fail); (EndCoord \= 0)),
+	((EndCoord = -1, fail); (EndCoord \= -1)),
 	parseCoord(EndCoord, Yend, Xend)
 .
 

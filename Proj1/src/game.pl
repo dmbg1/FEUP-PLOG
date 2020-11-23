@@ -78,6 +78,8 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap)
 	     (fail)))
   	),
 	movePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
+	
+
 	capturedCoord(StartY, StartX, EndY, EndX, CapturedY, CapturedX),
 	CapturedCoord is (CapturedY * 10) + CapturedX,
 	[GS, T, B, _, _, _, PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld] = GameNew1,
@@ -98,6 +100,7 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap)
 		PurpleCoordsNew = PurpleCoordsOld,
 		WhiteCoordsNew = WhiteCoordsOld)),
 	
+	format('here ~w ~w ~w~nchange ~w ~w ~w~n', [PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew]),
 	GameAux1 = [GS, T, B, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew],
 
 	setPiece(empty, GameAux1, GameNew2, CapturedY, CapturedX),
@@ -193,7 +196,7 @@ gameLoop(GameOld) :-
     (
         (game_over(GameNew, Winner), % game_over returns yes if game is not over yet and no otherwise
          gameLoop(GameNew));
-        (display_game(GameNew), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [Winner]))    % winScreen
+        (display_game(GameNew), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]))    % winScreen
     )
 .
 

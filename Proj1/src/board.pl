@@ -40,7 +40,7 @@ initial([ purple, purple,
 0,  
 0, 
 0,
-[95],	% Purple Coords
+[96],	% Purple Coords
 [66, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
 [20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
 ]  
@@ -254,32 +254,35 @@ winnerToWords(green, 'Green').
 winnerToWords(purplewhite, 'Purple & White').
 winnerToWords(purplegreen, 'Purple & Green').
 winnerToWords(whitegreen, 'White & Green').
+winnerToWords(draw, 'Purple, White & Green').
 
-chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
-	write(here), nl,
-	PPoints > WPoints, 
-	write(here), nl,
-	PPoints > ZPoints, 
-	write(here), nl,
-	Winner = purple
+
+chooseWinner(PPoints, WPoints, ZPoints, white) :-
+	WPoints > PPoints, WPoints > ZPoints
 .
-chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
-	WPoints > PPoints, WPoints > ZPoints, Winner = white
+chooseWinner(PPoints, WPoints, ZPoints, purple) :-
+	PPoints > WPoints, PPoints > ZPoints
 .
-chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
-	ZPoints > PPoints, ZPoints > WPoints, Winner = green
+chooseWinner(PPoints, WPoints, ZPoints, green) :-
+	ZPoints > PPoints, ZPoints > WPoints
 .
-chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
-	PPoints = WPoints, PPoints > ZPoints, Winner = purplewhite
+chooseWinner(PPoints, WPoints, ZPoints, purplewhite) :-
+	PPoints = WPoints, PPoints > ZPoints
 .
-chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
-	PPoints = ZPoints, PPoints > WPoints, Winner = purplegreen
+chooseWinner(PPoints, WPoints, ZPoints, purplegreen) :-
+	PPoints = ZPoints, PPoints > WPoints
 .
-chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
-	WPoints = ZPoints, WPoints > PPoints, Winner = whitegreen
+chooseWinner(PPoints, WPoints, ZPoints, whitegreen) :-
+	WPoints = ZPoints, WPoints > PPoints
 .
+chooseWinner(PPoints, WPoints, ZPoints, draw) :-
+	WPoints = ZPoints, WPoints = PPoints
+.
+
+
 
 game_over(Game, Winner) :-
+
 	[_, _, _, PEatenPoints, WEatenPoints, ZEatenPoints, PCoords, WCoords, ZCoords] = Game,
 	countPurpleOnEdge(PCoords, PEdgePoints, PLength),
 	countWhiteOnEdge(WCoords, WEdgePoints, WLength),
@@ -288,7 +291,7 @@ game_over(Game, Winner) :-
 	WPoints is WEatenPoints + WEdgePoints,
 	ZPoints is ZEatenPoints + ZEdgePoints,
 
-	format('PS ~w ~w ~w~n', [PPoints, WPoints, ZPoints]),
+	format('L ~w ~w ~w~nPS ~w ~w ~w~n', [PLength, WLength, ZLength, PPoints, WPoints, ZPoints]),
 
 	chooseWinner(PPoints, WPoints, ZPoints, Winner),
 
@@ -298,5 +301,4 @@ game_over(Game, Winner) :-
 	PEdgePoints =\= 2 * PLength,
 	WEdgePoints =\= 2 * WLength,
 	ZEdgePoints =\= 2 * ZLength
-
 .

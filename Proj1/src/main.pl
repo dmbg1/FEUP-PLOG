@@ -36,7 +36,7 @@ main :-
 		format('  -The unit digit represents the position within that line. Since the board is a triangle, the range of values varies from line to line~n~n',[]),
 		format('A piece can move to an empty adjacent space, or it can capture an adjacent piece by jumping over it.~nMultiple piece captures are allowed.~n~n',[]),
 		main);
-    (Input = 4, !);
+    (Input = 4);
     (format('Not an option, try again...~n', []), main))
 .
 
