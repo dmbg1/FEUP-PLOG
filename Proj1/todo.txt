@@ -1,4 +1,6 @@
+<<<<<<< HEAD
 - game_over (done)
+=======
+>>>>>>> a1ba0d4da8e3586c1768c94ac94c7c4af7a53bbe
 - capturas multiplas
-- mudar coordenadas com jogadas (done)
 - colocarmos uma letra no input da erro
