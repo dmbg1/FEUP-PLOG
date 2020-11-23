@@ -239,12 +239,50 @@ calcGreenPoints(Game, Points) :-
 	Points is EatenPoints + EdgePoints
 .
 
-checkEndGame(Game) :-
-	[_, _, _, _, _, _, PCoords, WCoords, ZCoords] = Game,
+winnerToWords(purple, 'Purple').
+winnerToWords(white, 'White').
+winnerToWords(green, 'Green').
+winnerToWords(purplewhite, 'Purple & White').
+winnerToWords(purplegreen, 'Purple & Green').
+winnerToWords(whitegreen, 'White & Green').
+
+chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
+	write(here), nl,
+	PPoints > WPoints, 
+	write(here), nl,
+	PPoints > ZPoints, 
+	write(here), nl,
+	Winner = purple
+.
+chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
+	WPoints > PPoints, WPoints > ZPoints, Winner = white
+.
+chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
+	ZPoints > PPoints, ZPoints > WPoints, Winner = green
+.
+chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
+	PPoints = WPoints, PPoints > ZPoints, Winner = purplewhite
+.
+chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
+	PPoints = ZPoints, PPoints > WPoints, Winner = purplegreen
+.
+chooseWinner(PPoints, WPoints, ZPoints, Winner) :-
+	WPoints = ZPoints, WPoints > PPoints, Winner = whitegreen
+.
+
+game_over(Game, Winner) :-
+	[_, _, _, PEatenPoints, WEatenPoints, ZEatenPoints, PCoords, WCoords, ZCoords] = Game,
 	countPurpleOnEdge(PCoords, PEdgePoints, PLength),
 	countWhiteOnEdge(WCoords, WEdgePoints, WLength),
 	countGreenOnEdge(ZCoords, ZEdgePoints, ZLength),
-	format('~nPL: ~w~n', [PLength]),
+	PPoints is PEatenPoints + PEdgePoints,
+	WPoints is WEatenPoints + WEdgePoints,
+	ZPoints is ZEatenPoints + ZEdgePoints,
+
+	format('PS ~w ~w ~w~n', [PPoints, WPoints, ZPoints]),
+
+	chooseWinner(PPoints, WPoints, ZPoints, Winner),
+
 	PLength \= 0,
 	WLength \= 0,
 	ZLength \= 0,

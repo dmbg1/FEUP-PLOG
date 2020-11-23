@@ -68,6 +68,8 @@ inputPlayerMove(Ystart, Xstart, Yend, Xend) :-
 	read(StartCoord),
 	write('Input end coord move: '),
 	read(EndCoord),
+	number(StartCoord), StartCoord < 100, StartCoord > 0, 
+	number(EndCoord), EndCoord < 100, EndCoord > 0,
 	parseCoord(StartCoord, Ystart, Xstart),
 	parseCoord(EndCoord, Yend, Xend)
 .

@@ -76,7 +76,6 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX):-
 	((Content = purple, purpleEaten(GameOld, GameAux), 
 		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
 		delete(PurpleCoordsOld, CapturedCoord, PurpleCoordsNew),
-		format('HERE: ~w ~w ~w~n', [PurpleCoordsOld, PurpleCoordsNew, CapturedCoord]),
 		WhiteCoordsNew = WhiteCoordsOld,
 		ZombieCoordsNew = ZombieCoordsOld);
 	 (Content = white, whiteEaten(GameOld, GameAux), 
@@ -113,7 +112,7 @@ requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
 	)
 .
 requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture) :-
-	write('That is a invalid move, try again'), nl,
+	write('That is a invalid move, try again...'), nl,
 	requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture)
 .
 
@@ -157,5 +156,13 @@ gameTurn(GameStateOld, GameStateNew) :-
 .
 
 
-
+gameLoop(GameOld) :-
+    display_game(GameOld),
+    gameTurn(GameOld, GameNew),
+    (
+        (game_over(GameNew, Winner), % game_over returns yes if game is not over yet and no otherwise
+         gameLoop(GameNew));
+        (display_game(GameNew), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [Winner]))    % winScreen
+    )
+.
 
