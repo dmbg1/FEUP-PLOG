@@ -78,7 +78,7 @@ checkValidMove(Game, Move, PieceColor, Capture) :-
 	StartContent = PieceColor,
 	content(Game, EndY, EndX, EndContent),
 	EndContent = empty,
-	freeValidMove(StartY, StartX, EndY, EndX),
+	freeValidMove(StartY, StartX, EndY, EndX)
 .
 checkValidMove(Game, Move, PieceColor, Capture) :-
 	Capture = true,
@@ -92,7 +92,7 @@ checkValidMove(Game, Move, PieceColor, Capture) :-
 	StartContent = PieceColor,
 	content(Game, EndY, EndX, EndContent),
 	EndContent = empty,
-	captureValidMove(Game, StartY, StartX, EndY, EndX),
+	captureValidMove(Game, StartY, StartX, EndY, EndX)
 .
 
 getMove(StartCoord, EndCoord, ValidMove) :-

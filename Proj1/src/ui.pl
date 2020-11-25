@@ -63,43 +63,32 @@ printPlayersPoints(Game) :-
 
 % ---
 
-inputNumberOfCaptures(NCap) :-
-	write('How many captures will you make in this play (0 for none)? '),
-	read(NCap),
-	nl
-.
-inputPlayerMove(Ystart, Xstart, Yend, Xend, NCap) :-
-	inputNumberOfCaptures(NCap),
-	((NCap \= 0, write('Capture '), write('1'), write(':'), nl); (NCap = 0)),
+inputPlayerMove(StartCoord, EndCoord) :-
 	write('Input start coord move: '),
 	read(StartCoord),
 	write('Input end coord move: '),
 	read(EndCoord),
 	number(StartCoord), StartCoord < 100, StartCoord > 0, 
 	number(EndCoord), EndCoord < 100, EndCoord > 0,
-	nl,
-	parseCoord(StartCoord, Ystart, Xstart),
-	parseCoord(EndCoord, Yend, Xend)
-.
-
-inputNextCapture(Yend, Xend) :-
-	write('Input end coord move (-1 to restart turn): '),
-	read(EndCoord),
-	nl,
-	((EndCoord = -1, fail); (EndCoord \= -1)),
-	parseCoord(EndCoord, Yend, Xend)
-.
-
-inputGreenSkullMove(Done) :-
-	write('Do you want to move a zombie(y/n)? '),
-	read(Input),
-	((	Input = y, Done = true);
-	 ( Input = n, Done = false)),
 	nl
 .
-inputGreenSkullMove(Done) :-
+
+inputNextCapture(Coord) :-
+	write('There is still a capture available! '), nl, write('Input the available coord move (-1 to stay)'),
+	read(Coord),
+	nl,
+	((EndCoord = -1, fail); (EndCoord \= -1))
+.
+
+inputGreenSkullMove(Input) :-
+	write('Do you want to move a zombie(y/n)? '),
+	read(Input),
+	nl,
+	(Input = y; Input = n)
+.
+inputGreenSkullMove(Input) :-
 	write('Wrong answer, try again'), nl,
-	inputGreenSkullMove(Done)
+	inputGreenSkullMove(Input)
 .
 
 
