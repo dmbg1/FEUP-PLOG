@@ -249,9 +249,9 @@ valid_captures(Game, Player, StartCoord, CapturesList) :-
 
 valid_multiCaptures(_Game, _Player, [], []).
 valid_multiCaptures(Game, Player, [Capture | Rest], [ [capture, StartCoord, EndCoord, SubCaptures] | RestNewCaptures]) :-
-	applyCaptureWithRecursion(Game, GameUpdated, Player, Capture),
+	applyCapture(Game, GameUpdated, Player, Capture),
 	parseCapture(Capture, StartCoord, EndCoord, SubCaptures1),
-	valid_captures(GameUpdated, Player, StartCoord, SubCaptures2),
+	valid_captures(GameUpdated, Player, EndCoord, SubCaptures2),
 	append(SubCaptures1, SubCaptures2, SubCaptures3),
 	valid_multiCaptures(GameUpdated, Player, Rest, RestNewCaptures),
 	valid_multiCaptures(GameUpdated, Player, SubCaptures3, SubCaptures)
