@@ -1,4 +1,5 @@
 :- use_module(library(between)).
+:- use_module(library(lists)).
 :- consult('board.pl').
 :- consult('moves.pl').
 :- consult('ui.pl').
@@ -11,7 +12,8 @@ play :-
 
 testValidMove :-
 	initial(GameState),
-	checkValidMove(GameState, 60, 61)
+	valid_moves(GameState, purple, Moves),
+	write(Moves)
 .
 
 testMove :-

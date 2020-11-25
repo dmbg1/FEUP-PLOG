@@ -1,5 +1,3 @@
-:- use_module(library(between)).
-
 freeValidMove(StartY, StartX, EndY, EndX) :-
 	EndY - StartY =:= -1,
 	EndX - StartX =:= -1
@@ -232,6 +230,7 @@ valid_captures(Game, Player, StartCoord, CapturesList) :-
 		checkValidMove(Game, Capture, Player, true)
 		), CapturesList)
 .
+valid_captures(_, _, _, []).
 
 valid_multiCaptures(_Game, _Player, [], []).
 valid_multiCaptures(Game, Player, [Capture | Rest], [ [capture, StartCoord, EndCoord, SubCaptures] | RestNewCaptures]) :-

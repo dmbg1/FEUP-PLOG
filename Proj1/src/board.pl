@@ -1,7 +1,4 @@
-:- use_module(library(lists)).
-
 % [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
-/*
 initial([ purple, purple,
 		         	               [[empty],
 							    [empty, empty],
@@ -24,31 +21,8 @@ initial([ purple, purple,
 % Digito das unidades indica o numero da peça dentro da linha = X
 % Digito das dezenas indica a linha = Y
 % 	Assim tem-se uma espécie de (x, y)
-).*/
-
-initial([ purple, purple,
-		         	               [[empty],
-							    [empty, empty],
-						    [green, empty, green],
-					    [green, empty, empty, green],
-			        [empty, empty, green, empty, empty],
-		        [empty, empty, green, green, empty, empty],
-	        [empty, empty, empty, green, empty, empty, white],
-	    [empty, empty, empty, empty, empty, empty, white, white],
-  	[empty, empty, empty, white, white, white, empty, white, white],
-[empty, empty, empty, empty, empty, empty, purple, empty, white, purple]],
-0,  
-0, 
-0,
-[96, 99],	% Purple Coords
-[66, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
-[20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
-]  
-
-% Digito das unidades indica o numero da peça dentro da linha = X
-% Digito das dezenas indica a linha = Y
-% 	Assim tem-se uma espécie de (x, y)
 ).
+
 
 getGSPlayer(Game, GS) :-
 	nth0(0, Game, GS)
