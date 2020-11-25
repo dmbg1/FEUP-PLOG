@@ -1,4 +1,5 @@
 :- consult('board.pl').
+:- consult('moves.pl').
 :- consult('ui.pl').
 
 changeSkull(GameStateOld, GameStateNew) :-
@@ -100,7 +101,6 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap)
 		PurpleCoordsNew = PurpleCoordsOld,
 		WhiteCoordsNew = WhiteCoordsOld)),
 	
-	format('here ~w ~w ~w~nchange ~w ~w ~w~n', [PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew]),
 	GameAux1 = [GS, T, B, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew],
 
 	setPiece(empty, GameAux1, GameNew2, CapturedY, CapturedX),
