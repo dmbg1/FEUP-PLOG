@@ -54,7 +54,7 @@ userCapture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, Curr
 	NCap1 is NCap - 1,
 	CurrCap1 is CurrCap + 1,
 
-	userCapture(GameNew2, GameNew, EndY, EndX, _EY, _EX, PieceColor, NCap1, CurrCap1)
+	userCapture(GameNew1, GameNew, EndY, EndX, _EY, _EX, PieceColor, NCap1, CurrCap1)
 .
 
 requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap) :-

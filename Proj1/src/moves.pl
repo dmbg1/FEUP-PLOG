@@ -200,17 +200,17 @@ capturePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
 	
 	GameAux1 = [GS, T, B, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew],
 
-	setPiece(empty, GameAux1, GameNew2, CapturedY, CapturedX)
+	setPiece(empty, GameAux1, GameNew, CapturedY, CapturedX)
 .
 capturePiece(GameOld, GameNew, Capture) :-
-	parseCapture(Capture, StartCoord, EndCoord, SubCaptures),
+	parseCapture(Capture, StartCoord, EndCoord, _SubCaptures),
 	parseCoord(StartCoord, StartY, StartX),
 	parseCoord(EndCoord, EndY, EndX),
 	capturePiece(GameOld, GameNew, StartY, StartX, EndY, EndX)
 .
 
 move(GameOld, GameNew, Move) :-
-	parseMove(Move, StartCoord, EndCoord),
+	parseMove(Move, _, _),
 	movePiece(GameOld, GameNew, Move)
 .
 move(GameOld, GameNew, Move) :-
@@ -222,19 +222,14 @@ move(GameOld, GameNew, Move) :-
 
 % ---
 
-applySingleCapture(GameOld,GameNew, Player, Capture):-
-	parseCapture(Capture, StartCoord, EndCoord, _SubCaptures),
-	parseCoord(StartCoord, StartY, StartX),
-	parseCoord(EndCoord, EndY, EndX),
-	move(GameOld, GameNew, Move)
-.
+
 applySubCaptures(GameOld, GameOld, _Player, []).
 applySubCaptures(GameOld, GameNew, Player, [Capture | Rest]) :-
-	applySingleCapture(GameOld, GameNew1, Player, Capture),
+	move(GameOld, GameNew1, Capture),
 	applySubCaptures(GameNew1, GameNew, Player, Rest)
 .
-applyCaptureWithRecursion(GameOld, GameNew, Player, Capture) :-
-	applySingleCapture(GameOld,GameNew1, Player, Capture),
+applyCapture(GameOld, GameNew, Player, Capture) :-
+	move(GameOld, GameNew1, Capture),
 	parseCapture(Capture, _, _, SubCaptures),
 	applySubCaptures(GameNew1, GameNew, Player, SubCaptures)
 .
