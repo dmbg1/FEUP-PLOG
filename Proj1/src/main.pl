@@ -1,3 +1,7 @@
+:- use_module(library(between)).
+:- consult('board.pl').
+:- consult('moves.pl').
+:- consult('ui.pl').
 :- consult('game.pl').
 
 play :-
