@@ -63,7 +63,8 @@ capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
 captureValidMove(Game, StartY, StartX, EndY, EndX) :-
 	capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX),
 	content(Game, MidY, MidX, Content),
-	Content \= empty
+	Content \= empty,
+	Content \= purple
 .
 
 checkValidMove(Game, Move, PieceColor, Capture) :-

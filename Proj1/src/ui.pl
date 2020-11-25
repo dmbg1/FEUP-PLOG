@@ -86,10 +86,6 @@ inputGreenSkullMove(Input) :-
 	nl,
 	(Input = y; Input = n)
 .
-inputGreenSkullMove(Input) :-
-	write('Wrong answer, try again'), nl,
-	inputGreenSkullMove(Input)
-.
 
 
 

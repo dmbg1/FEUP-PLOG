@@ -32,15 +32,14 @@ getRequestedMove(StartCoord, EndCoord, [ValidMove|RestValidMoves], Move) :-
 .
 getRequestedMove(_StartCoord, _EndCoord, [], _Move) :- fail.
 
-requestMove(Game, PieceColor, StartCoord, EndCoord, Move) :- 
+requestMove(Game, PieceColor, Move) :- 
 	inputPlayerMove(StartCoord, EndCoord),
 	valid_moves(Game, PieceColor, ValidMoves),
-	write(ValidMoves),
 	getRequestedMove(StartCoord, EndCoord, ValidMoves, Move)
 .
-requestMove(Game, PieceColor, StartCoord, EndCoord, Move) :-
+requestMove(Game, PieceColor, Move) :-
 	write('That is an invalid play, try again...'), nl, nl,
-	requestMove(Game, PieceColor, StartCoord, EndCoord, Move)
+	requestMove(Game, PieceColor, Move)
 .
 
 gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de algumas mudanças
@@ -53,7 +52,8 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de 
 .
 gsVerificationsAndTurn(GameStateOld, _, GameStateNew) :- GameStateOld = GameStateNew.
 
-gameTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de algumas mudanças
+gameTurn(GameStateOld, GameStateNew) :- % Talvez precise de algumas mudanças
+	getPlayerTurn(GameStateOld, Turn),
 	requestMove(GameStateOld, Turn, Move),
 	move(GameStateOld, GameStateNew1, Move),
 	gsVerificationsAndTurn(GameStateNew1, Turn, GameStateNew2),
