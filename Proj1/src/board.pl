@@ -90,7 +90,6 @@ zombieEaten(GameOld, GameNew) :-
 .
 
 parseCoord(Coord, Y, X) :-
-	format('pC ~w ~w ~w~n', [Coord, Y, X]),
 	X is Coord rem 10,
 	Y is div(Coord, 10)	
 .
@@ -105,6 +104,12 @@ checkValidCoord(Y, X) :-
 .
 
 content(Game, Y, X, Content) :-
+	nth0(2, Game, Board),
+	nth0(Y, Board, Line),
+	nth0(X, Line, Content)
+.
+content(Game, Coord, Content) :-
+	parseCoord(Coord, Y, X),
 	nth0(2, Game, Board),
 	nth0(Y, Board, Line),
 	nth0(X, Line, Content)

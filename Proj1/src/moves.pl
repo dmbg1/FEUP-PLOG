@@ -95,19 +95,66 @@ checkValidMove(Game, StartCoord, Coord, PieceColor, Capture):-
     parseCoord(Coord, EndY, EndX),
     checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture)
 .
-getMove(Game, StartCoord, Coord, PieceColor, ValidMove) :-
-    checkValidMove(Game, StartCoord, Coord, PieceColor, false), 
-    append([], [move, StartCoord, Coord], ValidMove)
+checkValidMove(Game, Move, PieceColor, Capture):-
+	nth0(0, Move, MoveType),
+	MoveType = move,
+	nth0(1, Move, StartCoord),
+	nth0(2, Move, EndCoord),
+    parseCoord(StartCoord, StartY, StartX),
+    parseCoord(EndCoord, EndY, EndX),
+    checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture)
 .
-getMove(Game, StartCoord, Coord, PieceColor, ValidMove) :-
-    checkValidMove(Game, StartCoord, Coord, PieceColor, true), 
-    append([], [capture, StartCoord, Coord], ValidMove)
+getMove(StartCoord, EndCoord, ValidMove) :-
+    append([], [move, StartCoord, EndCoord], ValidMove)
+.
+getMove(StartY, StartX, EndY, EndX, ValidMove) :-
+	getCoord(StartY, StartX, StartCoord),
+	getCoord(EndY, EndX, EndCoord),
+	getMove(StartCoord, EndCoord, ValidMove)
+.
+getCapture(StartCoord, EndCoord, ValidMove) :-
+    append([], [capture, StartCoord, EndCoord], ValidMove)
+.
+getCapture(StartY, StartX, EndY, EndX, ValidMove) :-
+	getCoord(StartY, StartX, StartCoord),
+	getCoord(EndY, EndX, EndCoord),
+	getCapture(StartCoord, EndCoord, ValidMove)
+.
+
+myBetween(Start, End, Step, Start) :-
+	fin
+.
+
+valid_captures(Game, Player, MovesList) :-
+     ((Player = purple, Game = [GS, _, _, _, _, _, Coords, _, _]);
+    (Player = white, Game = [GS, _, _, _, _, _, _, Coords, _]);
+    (Player = green, Game = [GS, _, _, _, _, _, _, _, Coords])),
+    
+    findall(Move, (
+		member(StartCoord, Coords),
+		between(-2, 2, XDiff), (XDiff = -2 ; XDiff = 2),
+		between(-2, 2, YDiff), (YDiff = -2 ; YDiff = 2),
+		parseCoord(StartCoord, StartY, StartX),
+		EndY is StartY + YDiff,
+		EndX is StartX + XDiff,
+		getMove(StartY, StartX, EndY, EndX, Move), 
+		checkValidMove(Game, Move, Player, true),
+		), MovesList)
 .
 
 valid_moves(Game, Player, MovesList) :-
-     ((Turn = purple, Game = [GS, _, _, _, _, _, Coords, _, _]);
-    (Turn = white, Game = [GS, _, _, _, _, _, _, Coords, _]);
-    (Turn = green, Game = [GS, _, _, _, _, _, _, _, Coords])),
+     ((Player = purple, Game = [GS, _, _, _, _, _, Coords, _, _]);
+    (Player = white, Game = [GS, _, _, _, _, _, _, Coords, _]);
+    (Player = green, Game = [GS, _, _, _, _, _, _, _, Coords])),
     
-    findall(Move, getMove(Game, _StartCoord, _EndCoord, Player, Move), MovesList)
+    findall(Move, (
+		member(StartCoord, Coords),
+		between(-1, 1, XDiff), (XDiff = -1 ; XDiff = 1),
+		between(-1, 1, YDiff), (YDiff = -1 ; YDiff = 1),
+		parseCoord(StartCoord, StartY, StartX),
+		EndY is StartY + YDiff,
+		EndX is StartX + XDiff,
+		getMove(StartY, StartX, EndY, EndX, Move), 
+		checkValidMove(Game, Move, Player, false),
+		), MovesList)
 .
