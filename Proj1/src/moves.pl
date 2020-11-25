@@ -1,4 +1,5 @@
 :- consult('board.pl').
+:- use_module(library(between)).
 
 freeValidMove(StartY, StartX, EndY, EndX) :-
 	EndY - StartY =:= -1,
@@ -97,13 +98,14 @@ checkValidMove(Game, StartCoord, Coord, PieceColor, Capture):-
 .
 checkValidMove(Game, Move, PieceColor, Capture):-
 	nth0(0, Move, MoveType),
-	MoveType = move,
+	(MoveType = move; MoveType = capture),
 	nth0(1, Move, StartCoord),
 	nth0(2, Move, EndCoord),
     parseCoord(StartCoord, StartY, StartX),
     parseCoord(EndCoord, EndY, EndX),
     checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture)
 .
+
 getMove(StartCoord, EndCoord, ValidMove) :-
     append([], [move, StartCoord, EndCoord], ValidMove)
 .
@@ -112,49 +114,182 @@ getMove(StartY, StartX, EndY, EndX, ValidMove) :-
 	getCoord(EndY, EndX, EndCoord),
 	getMove(StartCoord, EndCoord, ValidMove)
 .
+parseMove(Move, StartCoord, EndCoord) :-
+	nth0(0, Move, MoveType),
+	MoveType = move,
+	nth0(1, Move, StartCoord),
+	nth0(2, Move, EndCoord)
+.
+
 getCapture(StartCoord, EndCoord, ValidMove) :-
-    append([], [capture, StartCoord, EndCoord], ValidMove)
+    append([], [capture, StartCoord, EndCoord, []], ValidMove)
 .
 getCapture(StartY, StartX, EndY, EndX, ValidMove) :-
 	getCoord(StartY, StartX, StartCoord),
 	getCoord(EndY, EndX, EndCoord),
 	getCapture(StartCoord, EndCoord, ValidMove)
 .
-
-myBetween(Start, End, Step, Start) :-
-	fin
+parseCapture(Capture, StartCoord, EndCoord, SubCaptures) :-
+	nth0(0, Capture, MoveType),
+	MoveType = capture,
+	nth0(1, Capture, StartCoord),
+	nth0(2, Capture, EndCoord),
+	nth0(3, Capture, SubCaptures)
 .
 
-valid_captures(Game, Player, MovesList) :-
+% ---
+
+
+movePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
+	content(GameOld, StartY, StartX, Piece),
+	setPiece(empty, GameOld, GameAux, StartY, StartX),
+	setPiece(Piece, GameAux, GameAux1, EndY, EndX),
+
+	StartCoord is (StartY * 10) + StartX,
+	EndCoord is (EndY * 10) + EndX,
+
+	[Gs, Player, Board, PP, WP, ZP, PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld] = GameAux1,
+
+	((Piece = purple, 
+		delete(PurpleCoordsOld, StartCoord, PurpleCoordsAux),
+		PurpleCoordsNew = [EndCoord | PurpleCoordsAux],
+		WhiteCoordsNew = WhiteCoordsOld,
+		ZombieCoordsNew = ZombieCoordsOld);
+	(Piece = white,
+		delete(WhiteCoordsOld, StartCoord, WhiteCoordsAux),
+		WhiteCoordsNew = [EndCoord | WhiteCoordsAux],
+		PurpleCoordsNew = PurpleCoordsOld,
+		ZombieCoordsNew = ZombieCoordsOld);
+	(Piece = green,
+		delete(ZombieCoordsOld, StartCoord, ZombieCoordsAux),
+		ZombieCoordsNew = [EndCoord | ZombieCoordsAux],
+		PurpleCoordsNew = PurpleCoordsOld,
+		WhiteCoordsNew = WhiteCoordsOld)),
+
+	GameNew = [Gs, Player, Board, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew]
+.
+movePiece(GameOld, GameNew, Move) :-
+	parseMove(Move, StartCoord, EndCoord),
+	parseCoord(StartCoord, StartY, StartX),
+	parseCoord(EndCoord, EndY, EndX),
+	movePiece(GameOld, GameNew, StartY, StartX, EndY, EndX)
+.
+
+capturePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
+	movePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
+	
+	capturedCoord(StartY, StartX, EndY, EndX, CapturedY, CapturedX),
+	getCoord(CapturedY, CapturedX, CapturedCoord),
+	[GS, T, B, _, _, _, PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld] = GameNew1,
+	content(GameNew1, CapturedY, CapturedX, Content),
+	((Content = purple, purpleEaten(GameNew1, GameAux), 
+		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
+		delete(PurpleCoordsOld, CapturedCoord, PurpleCoordsNew),
+		WhiteCoordsNew = WhiteCoordsOld,
+		ZombieCoordsNew = ZombieCoordsOld);
+	 (Content = white, whiteEaten(GameNew1, GameAux), 
+		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
+	 	delete(WhiteCoordsOld, CapturedCoord, WhiteCoordsNew),
+	 	PurpleCoordsNew = PurpleCoordsOld,
+		ZombieCoordsNew = ZombieCoordsOld);
+	 (Content = green, zombieEaten(GameNew1, GameAux),
+		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
+	  	delete(ZombieCoordsOld, CapturedCoord, ZombieCoordsNew),
+		PurpleCoordsNew = PurpleCoordsOld,
+		WhiteCoordsNew = WhiteCoordsOld)),
+	
+	GameAux1 = [GS, T, B, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew],
+
+	setPiece(empty, GameAux1, GameNew2, CapturedY, CapturedX)
+.
+capturePiece(GameOld, GameNew, Capture) :-
+	parseCapture(Capture, StartCoord, EndCoord, SubCaptures),
+	parseCoord(StartCoord, StartY, StartX),
+	parseCoord(EndCoord, EndY, EndX),
+	capturePiece(GameOld, GameNew, StartY, StartX, EndY, EndX)
+.
+
+move(GameOld, GameNew, Move) :-
+	parseMove(Move, StartCoord, EndCoord),
+	movePiece(GameOld, GameNew, Move)
+.
+move(GameOld, GameNew, Move) :-
+	parseCapture(Move, _ ,_, _),
+	capturePiece(GameOld, GameNew, Move)
+.
+
+
+
+% ---
+
+applySingleCapture(GameOld,GameNew, Player, Capture):-
+	parseCapture(Capture, StartCoord, EndCoord, _SubCaptures),
+	parseCoord(StartCoord, StartY, StartX),
+	parseCoord(EndCoord, EndY, EndX),
+	move(GameOld, GameNew, Move)
+.
+applySubCaptures(GameOld, GameOld, _Player, []).
+applySubCaptures(GameOld, GameNew, Player, [Capture | Rest]) :-
+	applySingleCapture(GameOld, GameNew1, Player, Capture),
+	applySubCaptures(GameNew1, GameNew, Player, Rest)
+.
+applyCaptureWithRecursion(GameOld, GameNew, Player, Capture) :-
+	applySingleCapture(GameOld,GameNew1, Player, Capture),
+	parseCapture(Capture, _, _, SubCaptures),
+	applySubCaptures(GameNew1, GameNew, Player, SubCaptures)
+.
+
+
+valid_captures(Game, Player, StartCoord, CapturesList) :-
+    findall(Capture, (
+		between(-2, 2, XDiff), (XDiff = -2 ; XDiff = 0 ; XDiff = 2),
+		between(-2, 2, YDiff), (YDiff = -2 ; YDiff = 0 ; YDiff = 2),
+		parseCoord(StartCoord, StartY, StartX),
+		EndY is StartY + YDiff,
+		EndX is StartX + XDiff,
+		getCapture(StartY, StartX, EndY, EndX, Capture), 
+		checkValidMove(Game, Capture, Player, true)
+		), CapturesList)
+.
+
+valid_multiCaptures(_Game, _Player, [], []).
+valid_multiCaptures(Game, Player, [Capture | Rest], [ [capture, StartCoord, EndCoord, SubCaptures] | RestNewCaptures]) :-
+	applyCaptureWithRecursion(Game, GameUpdated, Player, Capture),
+	parseCapture(Capture, StartCoord, EndCoord, SubCaptures1),
+	valid_captures(GameUpdated, Player, StartCoord, SubCaptures2),
+	append(SubCaptures1, SubCaptures2, SubCaptures3),
+	valid_multiCaptures(GameUpdated, Player, Rest, RestNewCaptures),
+	valid_multiCaptures(GameUpdated, Player, SubCaptures3, SubCaptures)
+.
+
+valid_captures_aux(_Game, _Player, [], []).
+valid_captures_aux(Game, Player, [Coord | Rest], Caps) :-
+	valid_captures_aux(Game, Player, Rest, RestCaps),
+	valid_captures(Game, Player, Coord, ThisCaps),
+	append(ThisCaps, RestCaps, Caps)	
+.
+
+valid_captures(Game, Player, CapturesList) :-
      ((Player = purple, Game = [GS, _, _, _, _, _, Coords, _, _]);
     (Player = white, Game = [GS, _, _, _, _, _, _, Coords, _]);
     (Player = green, Game = [GS, _, _, _, _, _, _, _, Coords])),
     
-    findall(Move, (
-		member(StartCoord, Coords),
-		between(-2, 2, XDiff), (XDiff = -2 ; XDiff = 2),
-		between(-2, 2, YDiff), (YDiff = -2 ; YDiff = 2),
-		parseCoord(StartCoord, StartY, StartX),
-		EndY is StartY + YDiff,
-		EndX is StartX + XDiff,
-		getMove(StartY, StartX, EndY, EndX, Move), 
-		checkValidMove(Game, Move, Player, true),
-		), MovesList)
-.
+	valid_captures_aux(Game, Player, Coords, CapturesSingle),
+	valid_multiCaptures(Game, Player, CapturesSingle, CapturesList)
+.	
 
 valid_moves(Game, Player, MovesList) :-
      ((Player = purple, Game = [GS, _, _, _, _, _, Coords, _, _]);
     (Player = white, Game = [GS, _, _, _, _, _, _, Coords, _]);
     (Player = green, Game = [GS, _, _, _, _, _, _, _, Coords])),
-    
     findall(Move, (
 		member(StartCoord, Coords),
-		between(-1, 1, XDiff), (XDiff = -1 ; XDiff = 1),
-		between(-1, 1, YDiff), (YDiff = -1 ; YDiff = 1),
+		between(-1, 1, XDiff),
+		between(-1, 1, YDiff),
 		parseCoord(StartCoord, StartY, StartX),
 		EndY is StartY + YDiff,
 		EndX is StartX + XDiff,
 		getMove(StartY, StartX, EndY, EndX, Move), 
-		checkValidMove(Game, Move, Player, false),
+		checkValidMove(Game, Move, Player, false)
 		), MovesList)
 .

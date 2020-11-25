@@ -30,36 +30,6 @@ changeTurn(GameStateOld, GameStateNew) :-
 	GameStateNew = [Gs, NewTurn|Board]
 .
 
-movePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
-	content(GameOld, StartY, StartX, Piece),
-	setPiece(empty, GameOld, GameAux, StartY, StartX),
-	setPiece(Piece, GameAux, GameAux1, EndY, EndX),
-
-	StartCoord is (StartY * 10) + StartX,
-	EndCoord is (EndY * 10) + EndX,
-
-	[Gs, Player, Board, PP, WP, ZP, PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld] = GameAux1,
-
-	((Piece = purple, 
-		delete(PurpleCoordsOld, StartCoord, PurpleCoordsAux),
-		PurpleCoordsNew = [EndCoord | PurpleCoordsAux],
-		WhiteCoordsNew = WhiteCoordsOld,
-		ZombieCoordsNew = ZombieCoordsOld);
-	(Piece = white,
-		delete(WhiteCoordsOld, StartCoord, WhiteCoordsAux),
-		WhiteCoordsNew = [EndCoord | WhiteCoordsAux],
-		PurpleCoordsNew = PurpleCoordsOld,
-		ZombieCoordsNew = ZombieCoordsOld);
-	(Piece = green,
-		delete(ZombieCoordsOld, StartCoord, ZombieCoordsAux),
-		ZombieCoordsNew = [EndCoord | ZombieCoordsAux],
-		PurpleCoordsNew = PurpleCoordsOld,
-		WhiteCoordsNew = WhiteCoordsOld)),
-
-	GameNew = [Gs, Player, Board, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew]
-.
-
-
 requestNextCapture(Game, StartY, StartX, EndY, EndX, PieceColor) :- 
 	inputNextCapture(EndY, EndX),
 	((checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture),
@@ -69,8 +39,8 @@ requestNextCapture(Game, StartY, StartX, EndY, EndX, PieceColor) :-
 	)
 .
 
-capture(GameOld, GameNew, _, _, _,_, _, 0, _) :- GameNew = GameOld.
-capture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap):-
+userCapture(GameOld, GameOld, _, _, _,_, _, 0, _).
+userCapture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap):-
 	(
 		(CurrCap = 1); 
 		(CurrCap > 1, 
@@ -78,37 +48,13 @@ capture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap)
 	     ((requestNextCapture(GameOld, StartY, StartX, EndY, EndX, PieceColor));
 	     (fail)))
   	),
-	movePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
 	
-
-	capturedCoord(StartY, StartX, EndY, EndX, CapturedY, CapturedX),
-	CapturedCoord is (CapturedY * 10) + CapturedX,
-	[GS, T, B, _, _, _, PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld] = GameNew1,
-	content(GameNew1, CapturedY, CapturedX, Content),
-	((Content = purple, purpleEaten(GameNew1, GameAux), 
-		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
-		delete(PurpleCoordsOld, CapturedCoord, PurpleCoordsNew),
-		WhiteCoordsNew = WhiteCoordsOld,
-		ZombieCoordsNew = ZombieCoordsOld);
-	 (Content = white, whiteEaten(GameNew1, GameAux), 
-		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
-	 	delete(WhiteCoordsOld, CapturedCoord, WhiteCoordsNew),
-	 	PurpleCoordsNew = PurpleCoordsOld,
-		ZombieCoordsNew = ZombieCoordsOld);
-	 (Content = green, zombieEaten(GameNew1, GameAux),
-		[_, _, _, PP, WP, ZP, _, _, _] = GameAux,
-	  	delete(ZombieCoordsOld, CapturedCoord, ZombieCoordsNew),
-		PurpleCoordsNew = PurpleCoordsOld,
-		WhiteCoordsNew = WhiteCoordsOld)),
-	
-	GameAux1 = [GS, T, B, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew],
-
-	setPiece(empty, GameAux1, GameNew2, CapturedY, CapturedX),
+	capturePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
 
 	NCap1 is NCap - 1,
 	CurrCap1 is CurrCap + 1,
 
-	capture(GameNew2, GameNew, EndY, EndX, _EY, _EX, PieceColor, NCap1, CurrCap1)
+	userCapture(GameNew2, GameNew, EndY, EndX, _EY, _EX, PieceColor, NCap1, CurrCap1)
 .
 
 requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap) :-
@@ -141,7 +87,7 @@ requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap) :-
 	requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap)
 .
 
-move(GameStateOld, GameStateNew, PieceColor) :-
+userMove(GameStateOld, GameStateNew, PieceColor) :-
 	requestMove(GameStateOld, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap),
 	(
 		(StartY \= -1, 
@@ -152,18 +98,18 @@ move(GameStateOld, GameStateNew, PieceColor) :-
 	 		(Capture = true, 
 			 	(PieceColor = green,
 			  	((
-					capture(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX, PieceColor, NCap, 1),
+					userCapture(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX, PieceColor, NCap, 1),
 				  	changeSkull(GameStateNew1, GameStateNew));
 				 (	
 					write('Restarting turn...'), nl, nl,
-					move(GameStateOld, GameStateNew, PieceColor))
+					userMove(GameStateOld, GameStateNew, PieceColor))
 				 ));
 			  	(PieceColor \= green, 
 				((
-					capture(GameStateOld, GameStateNew, StartY, StartX, EndY, EndX, PieceColor, NCap, 1));
+					userCapture(GameStateOld, GameStateNew, StartY, StartX, EndY, EndX, PieceColor, NCap, 1));
 				 (
 					write('Restarting turn...'), nl, nl,
-					move(GameStateOld, GameStateNew, PieceColor))
+					userMove(GameStateOld, GameStateNew, PieceColor))
 				 ))
 			)
 		)
@@ -175,12 +121,12 @@ move(GameStateOld, GameStateNew, PieceColor) :-
 
 gameTurn(GameStateOld, GameStateNew) :-
 	getPlayerTurn(GameStateOld, Turn), 
-	move(GameStateOld, GameStateNew1, Turn),
+	userMove(GameStateOld, GameStateNew1, Turn),
 	getGSPlayer(GameStateNew1, Gs),
 	(
 		(	Gs = Turn,
 		% display talvez
-		move(GameStateNew1, GameStateNew2, green),
+		userMove(GameStateNew1, GameStateNew2, green),
 		changeTurn(GameStateNew2, GameStateNew)
 		);
 		( 	Gs \= Turn,
