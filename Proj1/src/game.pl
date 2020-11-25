@@ -48,7 +48,10 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de 
 	inputGreenSkullMove(Input),
 	Input = y,
 	requestMove(GameStateOld, green, Move),
-	move(GameStateOld, GameStateNew, Move)
+	[MoveType|_] = Move,
+	move(GameStateOld, GameStateNew1, Move),
+	((MoveType = capture, changeSkull(GameStateNew1, GameStateNew));
+	 MoveType = move)
 .
 gsVerificationsAndTurn(GameStateOld, _, GameStateNew) :- GameStateOld = GameStateNew.
 
