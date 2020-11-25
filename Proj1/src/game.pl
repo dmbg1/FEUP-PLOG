@@ -1,7 +1,3 @@
-:- consult('board.pl').
-:- consult('moves.pl').
-:- consult('ui.pl').
-
 changeSkull(GameStateOld, GameStateNew) :-
 	[Skull|Board] = GameStateOld,
 	Skull = purple,
@@ -30,111 +26,48 @@ changeTurn(GameStateOld, GameStateNew) :-
 	GameStateNew = [Gs, NewTurn|Board]
 .
 
-requestNextCapture(Game, StartY, StartX, EndY, EndX, PieceColor) :- 
-	inputNextCapture(EndY, EndX),
-	((checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture),
-	  Capture = true);
-	  (write('That is not a capture! Try again'), nl, nl,
-	   requestNextCapture(Game, StartY, StartX, EndY, EndX, PieceColor))
-	)
-.
+isPossibleMove(StartCoord, EndCoord, ValidMoves, Capture) :-
 
-userCapture(GameOld, GameOld, _, _, _,_, _, 0, _).
-userCapture(GameOld, GameNew, StartY, StartX, EndY, EndX, PieceColor, NCap, CurrCap):-
-	(
-		(CurrCap = 1); 
-		(CurrCap > 1, 
-	 	 write('Capture '), write(CurrCap), write(':'), nl, 
-	     ((requestNextCapture(GameOld, StartY, StartX, EndY, EndX, PieceColor));
-	     (fail)))
-  	),
+.
+requestMove(Game, PieceColor, StartCoord, EndCoord, NCap) :- % Incompleto
+	inputPlayerMove(StartCoord, EndCoord, NCap),
+	valid_moves(Game, PieceColor, ValidMoves),
+	NCap > 0
+
+.
+requestMove(Game, PieceColor, Move, NCap) :- % Incompleto
+	inputPlayerMove(StartCoord, EndCoord, NCap),
+	valid_moves(Game, PieceColor, ValidMoves),
+	NCap = 0
 	
-	capturePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
-
-	NCap1 is NCap - 1,
-	CurrCap1 is CurrCap + 1,
-
-	userCapture(GameNew1, GameNew, EndY, EndX, _EY, _EX, PieceColor, NCap1, CurrCap1)
 .
-
-requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap) :-
-	(
-		(PieceColor = green,
-		inputGreenSkullMove(DoneGS),
-			((DoneGS = true, 
-			inputPlayerMove(StartY, StartX, EndY, EndX, NCap),
-			checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture),
-				((Capture = true, NCap > 0);
-				 (Capture = false, NCap = 0);
-		 		 (Capture = true, NCap = 0, write('That is a capture!'), nl, fail);
-		 		 (Capture = false, NCap > 0, write('That isn\'t a capture!'), nl, fail))
-			);
-			 (DoneGS = false, StartY = -1)
-			)
-		);
-		(PieceColor \= green,
-		inputPlayerMove(StartY, StartX, EndY, EndX, NCap),
-		checkValidMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture),
-			((Capture = true, NCap > 0);
-			 (Capture = false, NCap = 0);
-		 	 (Capture = true, NCap = 0, write('That is a capture!'), nl, fail);
-			 (Capture = false, NCap > 0, write('That isn\'t a capture!'), nl, fail))
-		)
-	)
+requestMove(Game, PieceColor, Move, NCap) :- % Incompleto
+	inputPlayerMove(StartCoord, EndCoord, NCap),
+	valid_moves(Game, PieceColor, ValidMoves),
+	NCap = -1
+	
 .
-requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap) :-
+requestMove(Game, PieceColor, Move, NCap) :-
 	write('That is an invalid play, try again...'), nl, nl,
-	requestMove(Game, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap)
+	requestMove(Game, PieceColor, Move, NCap)
 .
 
-userMove(GameStateOld, GameStateNew, PieceColor) :-
-	requestMove(GameStateOld, StartY, StartX, EndY, EndX, PieceColor, Capture, NCap),
-	(
-		(StartY \= -1, 
-	 	(	
-			(Capture = false,
-			 movePiece(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX),
-		     GameStateNew = GameStateNew1); 
-	 		(Capture = true, 
-			 	(PieceColor = green,
-			  	((
-					userCapture(GameStateOld, GameStateNew1, StartY, StartX, EndY, EndX, PieceColor, NCap, 1),
-				  	changeSkull(GameStateNew1, GameStateNew));
-				 (	
-					write('Restarting turn...'), nl, nl,
-					userMove(GameStateOld, GameStateNew, PieceColor))
-				 ));
-			  	(PieceColor \= green, 
-				((
-					userCapture(GameStateOld, GameStateNew, StartY, StartX, EndY, EndX, PieceColor, NCap, 1));
-				 (
-					write('Restarting turn...'), nl, nl,
-					userMove(GameStateOld, GameStateNew, PieceColor))
-				 ))
-			)
-		)
-		);
-		(StartY = -1, GameStateNew = GameStateOld) % Player doesn't want to move green piece
-		)
+gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de algumas mudanças
+	getGSPlayer(GameStateOld, Gs),
+	Gs = Turn,
+	inputGreenSkullMove(Input),
+	Input = y,
+	requestMove(GameStateOld, green, Move),
+	move(GameStateOld, GameStateNew, Move)
 .
+gsVerificationsAndTurn(GameStateOld, _, GameStateNew) :- GameStateOld = GameStateNew.
 
-
-gameTurn(GameStateOld, GameStateNew) :-
-	getPlayerTurn(GameStateOld, Turn), 
-	userMove(GameStateOld, GameStateNew1, Turn),
-	getGSPlayer(GameStateNew1, Gs),
-	(
-		(	Gs = Turn,
-		% display talvez
-		userMove(GameStateNew1, GameStateNew2, green),
-		changeTurn(GameStateNew2, GameStateNew)
-		);
-		( 	Gs \= Turn,
-		changeTurn(GameStateNew1, GameStateNew)
-		)
-	)
+gameTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de algumas mudanças
+	requestMove(GameStateOld, Turn, Move),
+	move(GameStateOld, GameStateNew1, Move),
+	gsVerificationsAndTurn(GameStateNew1, Turn, GameStateNew2),
+	changeTurn(GameStateNew2, GameStateNew)
 .
-
 
 gameLoop(GameOld) :-
     display_game(GameOld),
@@ -145,4 +78,3 @@ gameLoop(GameOld) :-
         (display_game(GameNew), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]))    % winScreen
     )
 .
-

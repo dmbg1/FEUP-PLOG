@@ -66,7 +66,10 @@ captureValidMove(Game, StartY, StartX, EndY, EndX) :-
 	Content \= empty
 .
 
-checkValidMove(Game, StartCoord, EndCoord, PieceColor, Capture) :-
+checkValidMove(Game, Move, PieceColor, Capture) :-
+	Capture = false,
+	nth0(1, Move, StartCoord),
+	nth0(2, Move, EndCoord),
 	parseCoord(StartCoord, StartY, StartX),
     parseCoord(EndCoord, EndY, EndX),
 	checkValidCoord(StartY, StartX),
@@ -76,9 +79,11 @@ checkValidMove(Game, StartCoord, EndCoord, PieceColor, Capture) :-
 	content(Game, EndY, EndX, EndContent),
 	EndContent = empty,
 	freeValidMove(StartY, StartX, EndY, EndX),
-	Capture = false
 .
-checkValidMove(Game, StartCoord, EndCoord, PieceColor, Capture) :-
+checkValidMove(Game, Move, PieceColor, Capture) :-
+	Capture = true,
+	nth0(1, Move, StartCoord),
+	nth0(2, Move, EndCoord),
 	parseCoord(StartCoord, StartY, StartX),
     parseCoord(EndCoord, EndY, EndX),
 	checkValidCoord(StartY, StartX),
@@ -88,14 +93,6 @@ checkValidMove(Game, StartCoord, EndCoord, PieceColor, Capture) :-
 	content(Game, EndY, EndX, EndContent),
 	EndContent = empty,
 	captureValidMove(Game, StartY, StartX, EndY, EndX),
-	Capture = true
-.
-checkValidMove(Game, Move, PieceColor, Capture):-
-	nth0(0, Move, MoveType),
-	(MoveType = move; MoveType = capture),
-	nth0(1, Move, StartCoord),
-	nth0(2, Move, EndCoord),
-    checkValidMove(Game, StartCoord, EndCoord, PieceColor, Capture)
 .
 
 getMove(StartCoord, EndCoord, ValidMove) :-
