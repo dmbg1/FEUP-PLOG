@@ -63,9 +63,7 @@ capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
 captureValidMove(Game, StartY, StartX, EndY, EndX) :-
 	capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX),
 	content(Game, MidY, MidX, Content),
-	Content \= empty,
-	getPlayerTurn(Game, Turn),
-	Content \= Turn
+	Content \= empty
 .
 
 checkValidMove(Game, Move, PieceColor, Capture) :-
@@ -135,8 +133,8 @@ movePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
 	setPiece(empty, GameOld, GameAux, StartY, StartX),
 	setPiece(Piece, GameAux, GameAux1, EndY, EndX),
 
-	getCoord(StartY, StartY, StartCoord),
-	getCoord(EndY, EndY, EndCoord),
+	getCoord(StartY, StartX, StartCoord),
+	getCoord(EndY, EndX, EndCoord),
 
 	[Gs, Player, Board, PP, WP, ZP, PurpleCoordsOld, WhiteCoordsOld, ZombieCoordsOld] = GameAux1,
 
@@ -237,7 +235,7 @@ valid_multiCaptures(Game, Player, [Capture | Rest], [ [capture, StartCoord, EndC
 	parseCapture(Capture, StartCoord, EndCoord, SubCaptures1),
 	valid_captures(GameUpdated, Player, EndCoord, SubCaptures2),
 	append(SubCaptures1, SubCaptures2, SubCaptures3),
-	valid_multiCaptures(GameUpdated, Player, Rest, RestNewCaptures),
+	valid_multiCaptures(Game, Player, Rest, RestNewCaptures),
 	valid_multiCaptures(GameUpdated, Player, SubCaptures3, SubCaptures)
 .
 

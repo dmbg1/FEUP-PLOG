@@ -6,14 +6,14 @@ initial([ purple, purple,
 					    [green, empty, empty, green],
 			        [empty, empty, green, empty, empty],
 		        [empty, empty, green, green, empty, empty],
-	        [purple, empty, empty, green, empty, empty, white],
+	        [purple, purple, empty, green, empty, empty, white],
 	    [purple, purple, empty, empty, empty, empty, white, white],
   	[purple, purple, purple, empty, empty, empty, white, white, white],
 [purple, purple, purple, purple, empty, empty, white, white, white, white]],
 0,  
 0, 
 0,
-[60, 70, 71, 80, 81, 82, 90, 91, 92, 93],	% Purple Coords
+[60, 61, 70,71, 80, 81, 82, 90, 91, 92, 93],	% Purple Coords
 [66, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
 [20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
 ]  
