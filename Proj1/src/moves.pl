@@ -270,6 +270,6 @@ valid_moves(Game, Player, MovesList) :-
 		checkValidMove(Game, Move, Player, false)
 		), MovesList1),
 	valid_captures(Game, Player, CapturesList),
-	MovesList2 = [CapturesList, MovesList1],
+	MovesList2 = [MovesList1, CapturesList],
 	append(MovesList2, MovesList)
 .

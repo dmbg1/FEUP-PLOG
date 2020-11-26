@@ -77,7 +77,7 @@ inputNextCapture(Coord) :-
 	write('There is still a capture available! '), nl, write('Input the available coord move (-1 to stay)'),
 	read(Coord),
 	nl,
-	((EndCoord = -1, fail); (EndCoord \= -1))
+	((Coord = -1, fail); (Coord \= -1))
 .
 
 inputGreenSkullMove(Input) :-

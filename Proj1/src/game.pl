@@ -50,17 +50,35 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de 
 	requestMove(GameStateOld, green, Move),
 	[MoveType|_] = Move,
 	move(GameStateOld, GameStateNew1, Move),
-	((MoveType = capture, changeSkull(GameStateNew1, GameStateNew));
-	 MoveType = move)
+	multiCapture(GameStateNew1, GameStateNew2, Turn, Move),
+	(
+		(MoveType = capture, changeSkull(GameStateNew2, GameStateNew))
+		;
+		(MoveType = move, GameStateNew = GameStateOld)
+	)
 .
 gsVerificationsAndTurn(GameStateOld, _, GameStateNew) :- GameStateOld = GameStateNew.
+
+multiCapture(GameOld, GameNew, Turn, Move) :-
+	parseCapture(Move, _, StartCoord, SubCaptures),
+	length(SubCaptures, Len),
+	Len \= 0,
+	display_game(GameOld),
+	inputNextCapture(EndCoord),
+	EndCoord \= -1,
+	getRequestedMove(StartCoord, EndCoord, SubCaptures, Capture),
+	move(GameOld, GameNew1, Capture),
+	multiCapture(GameNew1, GameNew, Turn, Capture)
+.
+multiCapture(Game, Game, _, _).
 
 gameTurn(GameStateOld, GameStateNew) :- % Talvez precise de algumas mudanças
 	getPlayerTurn(GameStateOld, Turn),
 	requestMove(GameStateOld, Turn, Move),
 	move(GameStateOld, GameStateNew1, Move),
-	gsVerificationsAndTurn(GameStateNew1, Turn, GameStateNew2),
-	changeTurn(GameStateNew2, GameStateNew)
+	multiCapture(GameStateNew1, GameStateNew2, Turn, Move),
+	gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3),
+	changeTurn(GameStateNew3, GameStateNew)
 .
 
 gameLoop(GameOld) :-

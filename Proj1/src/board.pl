@@ -183,8 +183,6 @@ game_over(Game, Winner) :-
 	WPoints is WEatenPoints + WEdgePoints,
 	ZPoints is ZEatenPoints + ZEdgePoints,
 
-	format('L ~w ~w ~w~nPS ~w ~w ~w~n', [PLength, WLength, ZLength, PPoints, WPoints, ZPoints]),
-
 	chooseWinner(PPoints, WPoints, ZPoints, Winner),
 
 	PLength \= 0,
