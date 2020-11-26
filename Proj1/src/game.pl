@@ -26,15 +26,18 @@ changeTurn(GameStateOld, GameStateNew) :-
 	GameStateNew = [Gs, NewTurn|Board]
 .
 
-getRequestedMove(StartCoord, EndCoord, [ValidMove|RestValidMoves], Move) :-
+getRequestedMove(StartCoord, EndCoord, MoveList, Move) :-
+	write(MoveList), nl,
+	MoveList \=[],
+	[ValidMove|RestValidMoves] = MoveList,
 	((ValidMove = [_, StartCoord, EndCoord|_], Move = ValidMove); 
-	getRequestedMove(StartCoord, EndCoord, RestValidMoves, Move))
+	getRequestedMove(StartCoord, EndCoord, RestValidMoves, Move)),
+	write('1')
 .
-getRequestedMove(_StartCoord, _EndCoord, [], _Move) :- fail.
 
 requestMove(Game, PieceColor, Move) :- 
 	inputPlayerMove(StartCoord, EndCoord),
-	valid_moves(Game, PieceColor, ValidMoves), !,
+	valid_moves(Game, PieceColor, ValidMoves),
 	getRequestedMove(StartCoord, EndCoord, ValidMoves, Move)
 .
 requestMove(Game, PieceColor, Move) :-
@@ -80,10 +83,25 @@ multiCapture(Game, Game, _, _).
 gameTurn(GameStateOld, GameStateNew) :- % Talvez precise de algumas mudanças
 	getPlayerTurn(GameStateOld, Turn),
 	requestMove(GameStateOld, Turn, Move),
-	move(GameStateOld, GameStateNew1, Move)
-	multiCapture(GameStateNew1, GameStateNew2, Turn, Move)
+	move(GameStateOld, GameStateNew1, Move),
+	[MoveType|_] = Move,
+	multiCapture(GameStateNew1, GameStateNew2, Turn, Move),
 	gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3),
-	changeTurn(GameStateNew3, GameStateNew)
+	getGSPlayer(GameStateNew3, GS),
+	(
+		(
+		GS = Turn, MoveType = capture, 
+		changeSkull(GameStateNew3, GameStateNew4),
+		changeTurn(GameStateNew4, GameStateNew))
+		;
+		(
+		GS \= Turn,
+		changeTurn(GameStateNew3, GameStateNew))
+		;
+		(
+		GS=Turn,
+		changeTurn(GameStateNew3, GameStateNew))
+	 )
 .
 
 gameLoop(GameOld) :-
