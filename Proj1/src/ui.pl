@@ -73,11 +73,11 @@ inputPlayerMove(StartCoord, EndCoord) :-
 	nl
 .
 
-inputNextCapture(Coord) :-
+inputNextCapture(Game, Coord) :-
+	display_game(Game),
 	write('There is still a capture available! '), nl, write('Input the available coord move (-1 to stay)'),
 	read(Coord),
-	nl,
-	((Coord = -1, fail); (Coord \= -1))
+	nl
 .
 
 inputGreenSkullMove(Input) :-

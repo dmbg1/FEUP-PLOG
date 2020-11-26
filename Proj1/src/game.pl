@@ -34,7 +34,7 @@ getRequestedMove(_StartCoord, _EndCoord, [], _Move) :- fail.
 
 requestMove(Game, PieceColor, Move) :- 
 	inputPlayerMove(StartCoord, EndCoord),
-	valid_moves(Game, PieceColor, ValidMoves),
+	valid_moves(Game, PieceColor, ValidMoves), !,
 	getRequestedMove(StartCoord, EndCoord, ValidMoves, Move)
 .
 requestMove(Game, PieceColor, Move) :-
@@ -54,7 +54,7 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de 
 	(
 		(MoveType = capture, changeSkull(GameStateNew2, GameStateNew))
 		;
-		(MoveType = move, GameStateNew = GameStateOld)
+		(MoveType = move, GameStateNew = GameStateNew1)
 	)
 .
 gsVerificationsAndTurn(GameStateOld, _, GameStateNew) :- GameStateOld = GameStateNew.
@@ -63,11 +63,16 @@ multiCapture(GameOld, GameNew, Turn, Move) :-
 	parseCapture(Move, _, StartCoord, SubCaptures),
 	length(SubCaptures, Len),
 	Len \= 0,
-	display_game(GameOld),
-	inputNextCapture(EndCoord),
+	inputNextCapture(GameOld, EndCoord),
 	EndCoord \= -1,
-	getRequestedMove(StartCoord, EndCoord, SubCaptures, Capture),
-	move(GameOld, GameNew1, Capture),
+	(
+		(
+		getRequestedMove(StartCoord, EndCoord, SubCaptures, Capture), 
+		move(GameOld, GameNew1, Capture))
+		;
+		(
+		write('Wrong coord, try again...'), nl, nl, GameNew1 = GameOld, Capture = Move)
+	),
 	multiCapture(GameNew1, GameNew, Turn, Capture)
 .
 multiCapture(Game, Game, _, _).
@@ -75,8 +80,8 @@ multiCapture(Game, Game, _, _).
 gameTurn(GameStateOld, GameStateNew) :- % Talvez precise de algumas mudanças
 	getPlayerTurn(GameStateOld, Turn),
 	requestMove(GameStateOld, Turn, Move),
-	move(GameStateOld, GameStateNew1, Move),
-	multiCapture(GameStateNew1, GameStateNew2, Turn, Move),
+	move(GameStateOld, GameStateNew1, Move)
+	multiCapture(GameStateNew1, GameStateNew2, Turn, Move)
 	gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3),
 	changeTurn(GameStateNew3, GameStateNew)
 .
