@@ -192,3 +192,16 @@ game_over(Game, Winner) :-
 	WEdgePoints =\= 2 * WLength,
 	ZEdgePoints =\= 2 * ZLength
 .
+
+
+value(Game, purple, Value) :-
+	calcPurplePoints(Game, Value)
+.
+value(Game, green, Value) :-
+	calcGreenPoints(Game, Value)
+.
+value(Game, white, Value) :-
+	calcWhitePoints(Game, Value)
+.
+
+
