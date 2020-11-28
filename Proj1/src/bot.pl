@@ -9,7 +9,10 @@ choose_move(Game, Player, 0, Move) :-
 movesWithValue(_, _, [], []).
 movesWithValue(Game, Player, [Move | Rest], [Value-Move | RestValues]) :-
     move(Game, GameWithMove, Move),
-    value(GameWithMove, Player, Value),
+    getGSPlayer(Game, GSPlayer),
+    ((GSPlayer = Player,
+        value(GameWithMove, GSPlayer, Value));
+    (value(GameWithMove, Player, Value))),
     movesWithValue(Game, Player, Rest, RestValues)
 .
 

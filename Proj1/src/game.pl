@@ -42,7 +42,7 @@ requestMove(Game, PieceColor, Move) :-
 	requestMove(Game, PieceColor, Move)
 .
 
-gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de algumas mudanças
+gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, Mode) :- % Talvez precise de algumas mudanças
 	getGSPlayer(GameStateOld, Gs),
 	Gs = Turn,
 	inputGreenSkullMove(Input),
@@ -57,7 +57,7 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew) :- % Talvez precise de 
 		(MoveType = move, GameStateNew = GameStateNew1)
 	)
 .
-gsVerificationsAndTurn(GameStateOld, _, GameStateNew) :- GameStateOld = GameStateNew.
+gsVerificationsAndTurn(GameStateOld, _, GameStateNew, _) :- GameStateOld = GameStateNew.
 
 multiCapture(GameOld, GameNew, Turn, Move, Mode) :-
 	parseCapture(Move, _, StartCoord, SubCaptures),
@@ -128,18 +128,13 @@ gameTurn(GameStateOld, GameStateNew, Mode) :- % Talvez precise de algumas mudan�
 	 )
 .
 
-gameTurn(GameStateOld, GameStateNew, againstBot) :- % Talvez precise de algumas mudanças
+gameTurn(GameStateOld, GameStateNew, Mode) :-
 	getPlayerTurn(GameStateOld, Turn),
-	Turn = purple, 
-	gameTurn(GameStateOld, GameStateNew, noBot)
-.
-gameTurn(GameStateOld, GameStateNew, againstBot) :- % Talvez precise de algumas mudanças
-	getPlayerTurn(GameStateOld, Turn),
-	Turn = white,
+	Turn = purple,
 	move(GameStateOld, GameStateNew1, Move),
 	[MoveType|_] = Move,
-	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, againstBot),
-	gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3),
+	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, Mode),
+	gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, Mode),
 	getGSPlayer(GameStateNew3, GS),
 	(
 		(
@@ -157,12 +152,12 @@ gameTurn(GameStateOld, GameStateNew, againstBot) :- % Talvez precise de algumas 
 	 )
 .
 
-gameLoop(GameOld, BotPlaying) :-
+gameLoop(GameOld, Mode) :-
     display_game(GameOld),
-    gameTurn(GameOld, GameNew, BotPlaying),
+    gameTurn(GameOld, GameNew, Mode),
     (
         (game_over(GameNew, Winner), % game_over returns yes if game is not over yet and no otherwise
-         gameLoop(GameNew, BotPlaying));
+         gameLoop(GameNew, Mode));
         (display_game(GameNew), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]))    % winScreen
     )
 .
