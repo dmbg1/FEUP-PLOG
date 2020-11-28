@@ -11,16 +11,16 @@ choose_move(Game, Player, 0, Move) :-
 .
 
 movesWithValue([], []).
-movesWithValue(Game, Player, [Move | Rest], [MovesValue | RestValues]) :-
+movesWithValue(Game, Player, [Move | Rest], [Value-Move | RestValues]) :-
     move(Game, GameWithMove, Move),
     value(GameWithMove, Player, Value),
-    MovesValue = (Move, Value),
     movesWithValue(Game, Player, Rest, RestValues)
 .
 
 choose_move(Game, Player, 1, Move) :-
     valid_moves(Game, Player, MovesList),
     movesWithValue(Game, Player, MovesList, MovesValuesList),
-    sort(2, $>=, MovesValuesList, SortedMovesValuesList),
+    sort(MovesValuesList, SortedMoves),
+    reverse(SortedMoves, SortedMovesValuesList),
     nth0(0, SortedMovesValuesList, Move)
 .

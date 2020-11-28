@@ -233,7 +233,7 @@ valid_multiCaptures(_Game, _Player, [], []).
 valid_multiCaptures(Game, Player, [Capture | Rest], [ [capture, StartCoord, EndCoord, SubCaptures] | RestNewCaptures]) :-
 	applyCapture(Game, GameUpdated, Player, Capture),
 	parseCapture(Capture, StartCoord, EndCoord, SubCaptures1),
-	valid_captures(GameUpdated, Player, EndCoord, SubCaptures2),
+	valid_captures(GameUpdated, Player, EndCoord, SubCaptures2), !,
 	append(SubCaptures1, SubCaptures2, SubCaptures3),
 	valid_multiCaptures(Game, Player, Rest, RestNewCaptures),
 	valid_multiCaptures(GameUpdated, Player, SubCaptures3, SubCaptures)
@@ -242,7 +242,7 @@ valid_multiCaptures(Game, Player, [Capture | Rest], [ [capture, StartCoord, EndC
 valid_captures_aux(_Game, _Player, [], []).
 valid_captures_aux(Game, Player, [Coord | Rest], Caps) :-
 	valid_captures_aux(Game, Player, Rest, RestCaps),
-	valid_captures(Game, Player, Coord, ThisCaps),
+	valid_captures(Game, Player, Coord, ThisCaps),!,
 	append(ThisCaps, RestCaps, Caps)	
 .
 
@@ -251,8 +251,8 @@ valid_captures(Game, Player, CapturesList) :-
     (Player = white, Game = [GS, _, _, _, _, _, _, Coords, _]);
     (Player = green, Game = [GS, _, _, _, _, _, _, _, Coords])),
     
-	valid_captures_aux(Game, Player, Coords, CapturesSingle),
-	valid_multiCaptures(Game, Player, CapturesSingle, CapturesList)
+	valid_captures_aux(Game, Player, Coords, SingleCaptures),
+	valid_multiCaptures(Game, Player, SingleCaptures, CapturesList)
 .	
 
 valid_moves(Game, Player, MovesList) :-
