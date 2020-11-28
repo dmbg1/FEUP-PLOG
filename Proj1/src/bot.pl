@@ -11,9 +11,20 @@ movesWithValue(Game, Player, [Move | Rest], [Value-Move | RestValues]) :-
     move(Game, GameWithMove, Move),
     getGSPlayer(Game, GSPlayer),
     ((GSPlayer = Player,
-        value(GameWithMove, GSPlayer, Value));
-    (value(GameWithMove, Player, Value))),
+    value(GameWithMove, GSPlayer, Value));
+    (value(GameWithMove, Player, Value))), !,
     movesWithValue(Game, Player, Rest, RestValues)
+.
+
+choose_move(Game, green, 1, Move) :-
+    valid_moves(Game, green, MovesList),
+    movesWithValue(Game, green, MovesList, MovesValuesList),
+    sort(MovesValuesList, SortedMoves),
+    reverse(SortedMoves, SortedMovesValuesList),
+    nth0(0, SortedMovesValuesList, Move1),
+    ((0-_ = Move1, 
+        Move=[]);
+     (_-Move = Move1)), !
 .
 
 choose_move(Game, Player, 1, Move) :-
@@ -21,7 +32,8 @@ choose_move(Game, Player, 1, Move) :-
     movesWithValue(Game, Player, MovesList, MovesValuesList),
     sort(MovesValuesList, SortedMoves),
     reverse(SortedMoves, SortedMovesValuesList),
-    nth0(0, SortedMovesValuesList, Move)
+    nth0(0, SortedMovesValuesList, Move1),
+    _-Move = Move1
 .
 
 decide_multi_capture(Game, Player, Move, EndCoord) :-
