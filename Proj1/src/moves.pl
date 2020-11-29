@@ -221,8 +221,7 @@ move(GameOld, GameNew, Move) :-
 	parseCapture(Move, StartCoord, EndCoord, _SubCaptures),
 	parseCoord(StartCoord, StartY, StartX),
 	parseCoord(EndCoord, EndY, EndX),
-	capturePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
-	changeSkull(GameNew1, GameNew)
+	capturePiece(GameOld, GameNew, StartY, StartX, EndY, EndX)
 .
 
 

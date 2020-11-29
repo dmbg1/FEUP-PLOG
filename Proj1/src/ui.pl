@@ -61,7 +61,7 @@ printPlayersPoints(Game) :-
 	calcGreenPoints(Game, Green),
 	format('~nPoints:~n    Purple - ~w~n', [Purple]),
 	format('    White - ~w~n', [White]),
-	format('    Zombies - ~w~n~n', [Green])
+	format('    Green - ~w~n~n', [Green])
 .
 
 % Clear Screen

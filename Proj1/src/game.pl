@@ -76,7 +76,9 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, noBot, _Difficulty) :-
 	requestMove(GameStateOld, green, Move),
 
 	move(GameStateOld, GameStateNew1, Move),
-	multiCapture(GameStateNew1, GameStateNew, Turn, Move, noBot, _Difficulty)
+	[MoveType|_] = Move,
+	((MoveType = capture, changeSkull(GameStateNew1, GameStateNew2); (GameStateNew2 = GameStateNew1))),
+	multiCapture(GameStateNew2, GameStateNew, Turn, Move, noBot, _Difficulty)
 .
 gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, againstBot, Difficulty) :-
 	getGSPlayer(GameStateOld, Gs),
@@ -96,7 +98,9 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, againstBot, Difficulty)
 	),
 
 	move(GameStateOld, GameStateNew1, Move),
-	multiCapture(GameStateNew1, GameStateNew, Turn, Move, againstBot, Difficulty)
+	[MoveType|_] = Move,
+	((MoveType = capture, changeSkull(GameStateNew1, GameStateNew2); (GameStateNew2 = GameStateNew1))),
+	multiCapture(GameStateNew2, GameStateNew, Turn, Move, againstBot, Difficulty)
 .
 gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, botAgainstBot, Difficulty) :-
 	getGSPlayer(GameStateOld, Gs),
@@ -105,7 +109,11 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, botAgainstBot, Difficul
 	Move \= [],
 
 	move(GameStateOld, GameStateNew1, Move),
-	multiCapture(GameStateNew1, GameStateNew, Turn, Move, botAgainstBot, Difficulty)
+	
+	[MoveType|_] = Move,
+	((MoveType = capture, changeSkull(GameStateNew1, GameStateNew2); (GameStateNew2 = GameStateNew1))),
+
+	multiCapture(GameStateNew2, GameStateNew, Turn, Move, botAgainstBot, Difficulty)
 .
 gsVerificationsAndTurn(GameStateOld, _, GameStateOld, _, _).
 
@@ -196,13 +204,15 @@ gameTurn(GameStateOld, GameStateNew, noBot, Difficulty) :-
 	requestMove(GameStateOld, Turn, Move),
 	move(GameStateOld, GameStateNew1, Move),
 
-	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, noBot, Difficulty),
+	[MoveType|_] = Move,
+	((MoveType = capture, changeSkull(GameStateNew1, GameStateNew2); (GameStateNew2 = GameStateNew1))),
+	multiCapture(GameStateNew2, GameStateNew3, Turn, Move, noBot, Difficulty),
 	(
-		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
+		(game_over(GameStateNew3, _), GameStateNew = GameStateNew3)
 		;
 		(		
-			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, noBot, Difficulty),
-			changeTurn(GameStateNew3, GameStateNew)
+			gsVerificationsAndTurn(GameStateNew3, Turn, GameStateNew4, noBot, Difficulty),
+			changeTurn(GameStateNew4, GameStateNew)
 		)
 	)
 .
@@ -216,13 +226,15 @@ gameTurn(GameStateOld, GameStateNew, againstBot, Difficulty) :-
 
 	move(GameStateOld, GameStateNew1, Move),
 
-	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, againstBot, Difficulty),
+	[MoveType|_] = Move,
+	((MoveType = capture, changeSkull(GameStateNew1, GameStateNew2); (GameStateNew2 = GameStateNew1))),
+	multiCapture(GameStateNew2, GameStateNew3, Turn, Move, againstBot, Difficulty),
 	(
-		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
+		(game_over(GameStateNew3, _), GameStateNew = GameStateNew3)
 		;
 		(		
-			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, againstBot, Difficulty),
-			changeTurn(GameStateNew3, GameStateNew)
+			gsVerificationsAndTurn(GameStateNew3, Turn, GameStateNew4, againstBot, Difficulty),
+			changeTurn(GameStateNew4, GameStateNew)
 		)
 	)
 .
@@ -230,14 +242,15 @@ gameTurn(GameStateOld, GameStateNew, botAgainstBot, Difficulty) :-
 	getPlayerTurn(GameStateOld, Turn),
 	choose_move(GameStateOld, Turn, Difficulty, Move),
 	move(GameStateOld, GameStateNew1, Move),
-
-	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, botAgainstBot, Difficulty),
+	[MoveType|_] = Move,
+	((MoveType = capture, changeSkull(GameStateNew1, GameStateNew2); (GameStateNew2 = GameStateNew1))),
+	multiCapture(GameStateNew2, GameStateNew3, Turn, Move, botAgainstBot, Difficulty),
 	(
-		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
+		(game_over(GameStateNew3, _), GameStateNew = GameStateNew3)
 		;
 		(		
-			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, botAgainstBot, Difficulty),
-			changeTurn(GameStateNew3, GameStateNew)
+			gsVerificationsAndTurn(GameStateNew3, Turn, GameStateNew4, botAgainstBot, Difficulty),
+			changeTurn(GameStateNew4, GameStateNew)
 		)
 	)
 .
