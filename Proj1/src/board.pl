@@ -6,7 +6,7 @@ initial([ purple, purple,
 					    [green, empty, empty, green],
 			        [empty, empty, green, empty, empty],
 		        [empty, empty, green, green, empty, empty],
-	        [purple, white, empty, green, empty, empty, white],
+	        [purple, empty, empty, green, empty, empty, white],
 	    [purple, purple, empty, empty, empty, empty, white, white],
   	[purple, purple, purple, empty, empty, empty, white, white, white],
 [purple, purple, purple, purple, empty, empty, white, white, white, white]],
@@ -14,7 +14,7 @@ initial([ purple, purple,
 0, 
 0,
 [60, 70, 71, 80, 81, 82, 90, 91, 92, 93],	% Purple Coords
-[66, 61, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
+[66, 60, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
 [20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
 ]  
 
@@ -23,7 +23,7 @@ initial([ purple, purple,
 % 	Assim tem-se uma espécie de (x, y)
 ).
 
-
+% Getters para obter o jogador com a green skull (white or purple), a board, o próximo jogador a jogar
 getGSPlayer(Game, GS) :-
 	nth0(0, Game, GS)
 .
@@ -34,7 +34,14 @@ getBoard(Game, Board) :-
 	nth0(2, Game, Board)
 .
 
-setPiece(Piece, GameStateOld,GameStateNew, Y, X) :-
+/* Obtém a coordenada no formato referido nas instruções do menu (Dígito das dezenas para a linha e dígito
+das unidades para o número da peça dentro da linha) */
+getCoord(Y, X, Coord) :-
+	Coord is Y * 10 + X
+.
+
+% Coloca as peça referida no primeiro argumento nas coordenadas (Y, X) da Board refletindo-se esta alteração no GameStateNew
+setPiece(Piece, GameStateOld, GameStateNew, Y, X) :-
 	[Gs, Player, Board, PP, WP, ZP | T] = GameStateOld,
 	nth0(Y, Board, Row, TmpBoard),
 	nth0(X, Row, _, TmpRow),
@@ -43,6 +50,7 @@ setPiece(Piece, GameStateOld,GameStateNew, Y, X) :-
 	GameStateNew = [Gs, Player, NewBoard, PP, WP, ZP | T]
 .
 
+% Modifica a pontuação de um jogador ou zombie. Predicado é chamado quando uma peça é comida para atualizar o estado de jogo
 purpleEaten(GameOld, GameNew) :-
 	[GS, Turn, Board, PP, WP, ZP | T] = GameOld,
 	W1 is WP + 1,
@@ -65,10 +73,6 @@ zombieEaten(GameOld, GameNew) :-
 parseCoord(Coord, Y, X) :-
 	X is Coord rem 10,
 	Y is div(Coord, 10)	
-.
-
-getCoord(Y, X, Coord) :-
-	Coord is Y * 10 + X
 .
 
 checkValidCoord(Y, X) :-
@@ -95,10 +99,8 @@ countPurpleOnEdge(Coords, Nr, Length) :-
 	countPurpleOnEdge(Rest, NrRest, Len),
 	Length is Len + 1,
 	parseCoord(Coord, Y, X),
-	((Y = X,
-		Nr is NrRest + 2);
-	(Y \= X,
-		Nr is NrRest))
+	((Y = X, Nr is NrRest + 2);
+	(Y \= X, Nr is NrRest))
 .
 calcPurplePoints(Game, Points) :-
 	[_, _, _, EatenPoints, _, _, Coords | _ ] = Game,
@@ -112,10 +114,8 @@ countWhiteOnEdge(Coords, Nr, Length) :-
 	countWhiteOnEdge(Rest, NrRest, Len),
 	Length is Len + 1,
 	parseCoord(Coord, _, X),
-	((X = 0,
-		Nr is NrRest + 2);
-	(X \= 0,
-		Nr is NrRest))
+	((X = 0, Nr is NrRest + 2);
+	(X \= 0, Nr is NrRest))
 .
 calcWhitePoints(Game, Points) :-
 	[_, _, _, _, EatenPoints, _, _, Coords | _ ] = Game,
@@ -129,10 +129,8 @@ countGreenOnEdge(Coords, Nr, Length) :-
 	countGreenOnEdge(Rest, NrRest, Len),
 	Length is Len + 1,
 	parseCoord(Coord, Y, _),
-	((Y = 9,
-		Nr is NrRest + 2);
-	(Y \= 9,
-		Nr is NrRest))
+	((Y = 9, Nr is NrRest + 2);
+	(Y \= 9, Nr is NrRest))
 .
 calcGreenPoints(Game, Points) :-
 	[_, _, _, _, _, EatenPoints, _, _, Coords] = Game,
@@ -149,6 +147,7 @@ winnerToWords(whitegreen, 'White & Green').
 winnerToWords(draw, 'Purple, White & Green').
 
 
+% Escolhe o vencedor tendo em conta os pontos dos jogadores e dos zombies
 chooseWinner(PPoints, WPoints, ZPoints, white) :-
 	WPoints > PPoints, WPoints > ZPoints
 .
@@ -173,6 +172,8 @@ chooseWinner(PPoints, WPoints, ZPoints, draw) :-
 
 
 
+/* Verifica as condições de fim de jogo sucedendo se o jogo cumprir as mesmas. 
+game_over sucede se o jogo ainda não estiver acabado (útil estar implementado desta maneira para o game_loop) */
 game_over(Game, Winner) :-
 	[_, _, _, PEatenPoints, WEatenPoints, ZEatenPoints, PCoords, WCoords, ZCoords] = Game,
 	countPurpleOnEdge(PCoords, PEdgePoints, PLength),
@@ -202,5 +203,3 @@ value(Game, green, Value) :-
 value(Game, white, Value) :-
 	calcWhitePoints(Game, Value)
 .
-
-

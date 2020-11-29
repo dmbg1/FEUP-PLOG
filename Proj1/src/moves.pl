@@ -1,28 +1,3 @@
-freeValidMove(StartY, StartX, EndY, EndX) :-
-	EndY - StartY =:= -1,
-	EndX - StartX =:= -1
-.
-freeValidMove(StartY, StartX, EndY, EndX) :-
-	EndY - StartY =:= -1,
-	EndX - StartX =:= 0
-.
-freeValidMove(StartY, StartX, EndY, EndX) :-
-	EndY - StartY =:= 0,
-	EndX - StartX =:= -1
-.
-freeValidMove(StartY, StartX, EndY, EndX) :-
-	EndY - StartY =:= 0,
-	EndX - StartX =:= 1
-.
-freeValidMove(StartY, StartX, EndY, EndX) :-
-	EndY - StartY =:= 1,
-	EndX - StartX =:= 0
-.
-freeValidMove(StartY, StartX, EndY, EndX) :-
-	EndY - StartY =:= 1,
-	EndX - StartX =:= 1
-.
-
 capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
 	EndY - StartY =:= -2,
 	EndX - StartX =:= -2,
@@ -60,16 +35,17 @@ capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
 	MidX is StartX + 1
 .
 
-captureValidMove(Game, StartY, StartX, EndY, EndX) :-
+% Verifica se uma captura é válida
+captureValidMove(Game, StartCoord, EndCoord) :-
+	parseCoord(StartCoord, StartY, StartX),
+    parseCoord(EndCoord, EndY, EndX),
 	capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX),
 	content(Game, MidY, MidX, Content),
 	Content \= empty
 .
 
-checkValidMove(Game, Move, PieceColor, Capture) :-
-	Capture = false,
-	nth0(1, Move, StartCoord),
-	nth0(2, Move, EndCoord),
+% Verifica se o salto provocado pelo Move é válido
+checkValidJump(Game, PieceColor, StartCoord, EndCoord) :-
 	parseCoord(StartCoord, StartY, StartX),
     parseCoord(EndCoord, EndY, EndX),
 	checkValidCoord(StartY, StartX),
@@ -77,22 +53,22 @@ checkValidMove(Game, Move, PieceColor, Capture) :-
 	content(Game, StartY, StartX, StartContent),
 	StartContent = PieceColor,
 	content(Game, EndY, EndX, EndContent),
-	EndContent = empty,
-	freeValidMove(StartY, StartX, EndY, EndX)
+	EndContent = empty
 .
-checkValidMove(Game, Move, PieceColor, Capture) :-
-	Capture = true,
-	nth0(1, Move, StartCoord),
-	nth0(2, Move, EndCoord),
-	parseCoord(StartCoord, StartY, StartX),
-    parseCoord(EndCoord, EndY, EndX),
-	checkValidCoord(StartY, StartX),
-	checkValidCoord(EndY, EndX),
-	content(Game, StartY, StartX, StartContent),
-	StartContent = PieceColor,
-	content(Game, EndY, EndX, EndContent),
-	EndContent = empty,
-	captureValidMove(Game, StartY, StartX, EndY, EndX)
+
+/*	checkValidMove(+Game, +Move, +PieceColor) :-
+
+
+	Verifica se um Move é válido sendo este com ou sem captura
+*/
+checkValidMove(Game, Move, PieceColor) :-
+	parseMove(Move, StartCoord, EndCoord),
+	checkValidJump(Game, Move, PieceColor, StartCoord, EndCoord)
+.
+checkValidMove(Game, Move, PieceColor) :-
+	parseCapture(Move, StartCoord, EndCoord, _SubCaptures),
+	checkValidJump(Game, Move, PieceColor, StartCoord, EndCoord),
+	captureValidMove(Game, StartCoord, EndCoord)
 .
 
 getMove(StartCoord, EndCoord, ValidMove) :-
@@ -126,8 +102,11 @@ parseCapture(Capture, StartCoord, EndCoord, SubCaptures) :-
 	nth0(3, Capture, SubCaptures)
 .
 
-% ---
+/*  capturePiece(+GameOld, -GameNew, +StartY, +StartX, +EndY, +EndX)
 
+
+	Movimenta a peça presente nas coordenadas (StartX, StartY) para as coordenadas (EndX, EndY) 
+*/
 movePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
 	content(GameOld, StartY, StartX, Piece),
 	setPiece(empty, GameOld, GameAux, StartY, StartX),
@@ -157,6 +136,11 @@ movePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
 	GameNew = [Gs, Player, Board, PP, WP, ZP, PurpleCoordsNew, WhiteCoordsNew, ZombieCoordsNew]
 .
 
+/*  capturePiece(+GameOld, -GameNew, +StartY, +StartX, +EndY, +EndX)
+
+
+	Captura a peça entre as coordenadas (StartX, StartY) e as coordenadas (EndX, EndY) 
+*/
 capturePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
 	movePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
 	
@@ -186,6 +170,12 @@ capturePiece(GameOld, GameNew, StartY, StartX, EndY, EndX) :-
 	setPiece(empty, GameAux1, GameNew, CapturedY, CapturedX)
 .
 
+/*	move(+GameOld, -GameNew, +Move)
+	
+
+	Processa o Move com o auxílio dos predicados movePiece e capturePiece e atualiza o estado de jogo de
+ 	acordo com esse processamento 
+*/
 move(GameOld, GameNew, Move) :-
 	parseMove(Move, StartCoord, EndCoord),
 	parseCoord(StartCoord, StartY, StartX),
@@ -200,15 +190,13 @@ move(GameOld, GameNew, Move) :-
 .
 
 
-
-% ---
-
-
+% Aplica subcapturas 
 applySubCaptures(GameOld, GameOld, _Player, []).
 applySubCaptures(GameOld, GameNew, Player, [Capture | Rest]) :-
 	move(GameOld, GameNew1, Capture),
 	applySubCaptures(GameNew1, GameNew, Player, Rest)
 .
+% Aplica uma captura e respetivas subcapturas
 applyCapture(GameOld, GameNew, Player, Capture) :-
 	move(GameOld, GameNew1, Capture),
 	parseCapture(Capture, _, _, SubCaptures),
@@ -224,11 +212,16 @@ valid_captures(Game, Player, StartCoord, CapturesList) :-
 		EndY is StartY + YDiff,
 		EndX is StartX + XDiff,
 		getCapture(StartY, StartX, EndY, EndX, Capture), 
-		checkValidMove(Game, Capture, Player, true)
+		checkValidMove(Game, Capture, Player)
 		), CapturesList)
 .
 valid_captures(_, _, _, []).
 
+/*  valid_multiCaptures(+Game, +Player, +Captures, -CapturesWithSubCaptures)
+	
+	
+	Obtém as sub-capturas de cada uma das capturas da lista do terceiro argumento. Predicado usado no valid_captures 
+*/
 valid_multiCaptures(_Game, _Player, [], []).
 valid_multiCaptures(Game, Player, [Capture | Rest], [ [capture, StartCoord, EndCoord, SubCaptures] | RestNewCaptures]) :-
 	applyCapture(Game, GameUpdated, Player, Capture),
@@ -245,9 +238,14 @@ valid_captures_aux(Game, Player, [Coord | Rest], Caps) :-
 	valid_captures(Game, Player, Coord, ThisCaps),!,
 	append(ThisCaps, RestCaps, Caps)	
 .
+/*	valid_captures(+Game, +Player, -CapturesList)
 
+
+	Predicado auxiliar ao valid_moves que obtém a lista de capturas possíveis
+	e para cada captura as respetivas sub-capturas
+*/
 valid_captures(Game, Player, CapturesList) :-
-     ((Player = purple, Game = [GS, _, _, _, _, _, Coords, _, _]);
+    ((Player = purple, Game = [GS, _, _, _, _, _, Coords, _, _]);
     (Player = white, Game = [GS, _, _, _, _, _, _, Coords, _]);
     (Player = green, Game = [GS, _, _, _, _, _, _, _, Coords])),
     
@@ -255,6 +253,11 @@ valid_captures(Game, Player, CapturesList) :-
 	valid_multiCaptures(Game, Player, SingleCaptures, CapturesList)
 .	
 
+/*	valid_moves(+Game, +Player, -MovesList)
+
+
+	Obtém a lista de jogadas possíveis (capturas e jogadas sem capturas)
+*/ 
 valid_moves(Game, Player, MovesList) :-
     ((Player = purple, Game = [GS, _, _, _, _, _, Coords, _, _]);
     (Player = white, Game = [GS, _, _, _, _, _, _, Coords, _]);
@@ -267,7 +270,7 @@ valid_moves(Game, Player, MovesList) :-
 		EndY is StartY + YDiff,
 		EndX is StartX + XDiff,
 		getMove(StartY, StartX, EndY, EndX, Move), 
-		checkValidMove(Game, Move, Player, false)
+		checkValidMove(Game, Move, Player)
 		), MovesList1),
 	valid_captures(Game, Player, CapturesList),
 	MovesList2 = [MovesList1, CapturesList],

@@ -26,7 +26,6 @@ choose_move(Game, green, 1, Move) :-
         Move=[]);
      (_-Move = Move1)), !
 .
-
 choose_move(Game, Player, 1, Move) :-
     valid_moves(Game, Player, MovesList),
     movesWithValue(Game, Player, MovesList, MovesValuesList),
