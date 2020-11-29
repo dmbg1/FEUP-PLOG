@@ -1,5 +1,3 @@
-% choose_move(Game, Player, Level, Move) 
-
 movesWithValue(_, _, [], []).
 movesWithValue(Game, Player, [Move | Rest], [Value-Move | RestValues]) :-
     move(Game, GameWithMove, Move),

@@ -1,4 +1,9 @@
 % Dá início ao jogo recebendo como argumento o modo de jogo (bot vs bot, player vs bot e player vs bot)
+start_game(botAgainstBot, 0, Difficulty) :-
+	initial(Game),
+	display_game(Game), sleep(5),
+	gameLoop(Game, botAgainstBot, 0, Difficulty)
+.
 start_game(Mode, BetweenTurns, Difficulty) :-
 	initial(Game),
 	gameLoop(Game, Mode, BetweenTurns, Difficulty)
@@ -70,7 +75,7 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, noBot, _Difficulty) :-
 	requestMove(GameStateOld, green, Move),
 
 	move(GameStateOld, GameStateNew1, Move),
-	multiCapture(GameStateNew1, GameStateNew, Turn, Move, noBot)
+	multiCapture(GameStateNew1, GameStateNew, Turn, Move, noBot, _Difficulty)
 .
 gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, againstBot, Difficulty) :-
 	getGSPlayer(GameStateOld, Gs),
@@ -90,7 +95,7 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, againstBot, Difficulty)
 	),
 
 	move(GameStateOld, GameStateNew1, Move),
-	multiCapture(GameStateNew1, GameStateNew, Turn, Move, againstBot)
+	multiCapture(GameStateNew1, GameStateNew, Turn, Move, againstBot, Difficulty)
 .
 gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, botAgainstBot, Difficulty) :-
 	getGSPlayer(GameStateOld, Gs),
@@ -99,11 +104,11 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, botAgainstBot, Difficul
 	Move \= [],
 
 	move(GameStateOld, GameStateNew1, Move),
-	multiCapture(GameStateNew1, GameStateNew, Turn, Move, botAgainstBot)
+	multiCapture(GameStateNew1, GameStateNew, Turn, Move, botAgainstBot, Difficulty)
 .
 gsVerificationsAndTurn(GameStateOld, _, GameStateOld, _, _).
 
-multiCapture(GameOld, GameNew, Turn, Move, noBot) :-
+multiCapture(GameOld, GameNew, Turn, Move, noBot, _) :-
 	parseCapture(Move, _, StartCoord, SubCaptures),
 	length(SubCaptures, Len),
 	Len \= 0,
@@ -118,9 +123,29 @@ multiCapture(GameOld, GameNew, Turn, Move, noBot) :-
 		(
 		write('Wrong coord, try again...'), nl, nl, GameNew1 = GameOld, Capture = Move)
 	),
-	multiCapture(GameNew1, GameNew, Turn, Capture, noBot)
+	multiCapture(GameNew1, GameNew, Turn, Capture, noBot, _)
 .
-multiCapture(GameOld, GameNew, Turn, Move, againstBot) :-
+multiCapture(GameOld, GameNew, Turn, Move, againstBot, 0) :-
+	parseCapture(Move, _, StartCoord, SubCaptures),
+	length(SubCaptures, Len),
+	Len \= 0,
+
+	(
+		(Turn \= white, inputNextCapture(GameOld, EndCoord));
+		(Turn = white, EndCoord = -1)
+	),
+
+	EndCoord \= -1,
+	(
+		(
+		getRequestedMove(StartCoord, EndCoord, SubCaptures, Capture), 
+		move(GameOld, GameNew1, Capture));
+		(
+		write('Wrong coord, try again...'), nl, nl, GameNew1 = GameOld, Capture = Move)
+	),
+	multiCapture(GameNew1, GameNew, Turn, Capture, againstBot, 0)
+.
+multiCapture(GameOld, GameNew, Turn, Move, againstBot, 1) :-
 	parseCapture(Move, _, StartCoord, SubCaptures),
 	length(SubCaptures, Len),
 	Len \= 0,
@@ -138,9 +163,12 @@ multiCapture(GameOld, GameNew, Turn, Move, againstBot) :-
 		(
 		write('Wrong coord, try again...'), nl, nl, GameNew1 = GameOld, Capture = Move)
 	),
-	multiCapture(GameNew1, GameNew, Turn, Capture, againstBot)
+	multiCapture(GameNew1, GameNew, Turn, Capture, againstBot, 1)
 .
-multiCapture(GameOld, GameNew, Turn, Move, botAgainstBot) :-
+multiCapture(_GameOld, _GameNew, _Turn, _Move, botAgainstBot, 0) :-
+	fail
+.
+multiCapture(GameOld, GameNew, Turn, Move, botAgainstBot, 1) :-
 	parseCapture(Move, _, StartCoord, SubCaptures),
 	length(SubCaptures, Len),
 	Len \= 0,
@@ -155,9 +183,9 @@ multiCapture(GameOld, GameNew, Turn, Move, botAgainstBot) :-
 		(
 		write('Wrong coord, try again...'), nl, nl, GameNew1 = GameOld, Capture = Move)
 	),
-	multiCapture(GameNew1, GameNew, Turn, Capture, botAgainstBot)
+	multiCapture(GameNew1, GameNew, Turn, Capture, botAgainstBot, 1)
 .
-multiCapture(Game, Game, _, _, _).
+multiCapture(Game, Game, _, _, _, _).
 
 % Rodada do jogo
 gameTurn(GameStateOld, GameStateNew, noBot, Difficulty) :-
@@ -165,7 +193,7 @@ gameTurn(GameStateOld, GameStateNew, noBot, Difficulty) :-
 	requestMove(GameStateOld, Turn, Move),
 	move(GameStateOld, GameStateNew1, Move),
 
-	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, noBot),
+	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, noBot, Difficulty),
 	(
 		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
 		;
@@ -185,7 +213,7 @@ gameTurn(GameStateOld, GameStateNew, againstBot, Difficulty) :-
 
 	move(GameStateOld, GameStateNew1, Move),
 
-	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, againstBot),
+	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, againstBot, Difficulty),
 	(
 		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
 		;
@@ -200,7 +228,7 @@ gameTurn(GameStateOld, GameStateNew, botAgainstBot, Difficulty) :-
 	choose_move(GameStateOld, Turn, Difficulty, Move),
 	move(GameStateOld, GameStateNew1, Move),
 
-	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, botAgainstBot),
+	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, botAgainstBot, Difficulty),
 	(
 		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
 		;
@@ -213,10 +241,10 @@ gameTurn(GameStateOld, GameStateNew, botAgainstBot, Difficulty) :-
 
 % Loop do jogo 
 gameLoop(GameOld, Mode, BetweenTurns, Difficulty) :-
-    display_game(GameOld),
+	(BetweenTurns \= 0, display_game(GameOld); true),
     gameTurn(GameOld, GameNew, Mode, Difficulty),
     (
-        (game_over(GameNew, Winner), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]), sleep(BetweenTurns));
+        (game_over(GameNew, Winner), (BetweenTurns = 0, display_game(GameOld); true), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]), sleep(10));
         (((Mode = botAgainstBot, sleep(BetweenTurns)); (true)), cls,
 			gameLoop(GameNew, Mode, BetweenTurns, Difficulty))
     )

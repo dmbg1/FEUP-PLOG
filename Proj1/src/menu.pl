@@ -1,6 +1,6 @@
 /* Menu do jogo que recebe como input 1 para jogar no modo de jogador contra jogador, 
 2 para jogar no modo de jogador contra computador, 3 para visualizar o modo computador
-contra computador com intervalos de 5 segundos entre jogadas, 4 para visualizar o modo computador
+contra computador com intervalos de 3 segundos entre jogadas, 4 para visualizar o modo computador
 contra computador sem intervalos entre jogadas, 5 para verificar as instruções de jogo 
 e 0 para sair do jogo*/
 menu :-
@@ -8,7 +8,7 @@ menu :-
     format('       Main Menu~nChoose an option:~n', []),
     format('1 - Play (2 Players)~n', []),
     format('2 - Play (Against PC)~n', []),
-    format('3 - Watch PC against PC with 5 seconds between turns~n', []),
+    format('3 - Watch PC against PC with 3 seconds between turns~n', []),
     format('4 - Watch PC against PC with no time between turns~n', []),
     format('5 - Instructions~n', []),
     format('0 - Exit~n', []),
@@ -19,19 +19,19 @@ menu :-
 /* Trata das opções de input anteriormente referidas */
 manageInput(1) :- 
     cls,
-    start_game(noBot, 0, 0), !,
+    start_game(noBot, 1, 0), !,
     cls,
 	menu
 .
 manageInput(2) :-
     !,
     cls,
-    difficultyMenu(againstBot, 0)
+    difficultyMenu(againstBot, 1)
 .
 manageInput(3) :-
     !,
     cls,
-    difficultyMenu(botAgainstBot, 5)
+    difficultyMenu(botAgainstBot, 3)
 .
 manageInput(4) :-
     !,
@@ -70,6 +70,8 @@ difficultyMenu(Mode, BetweenTurns) :-
     read(Input),
     manageDifficultyInput(Input, Mode, BetweenTurns)
 .
+
+% Lidar com cada input do menu de dificuldade
 manageDifficultyInput(1, Mode, BetweenTurns) :-
     cls,
     start_game(Mode, BetweenTurns, 0), !,

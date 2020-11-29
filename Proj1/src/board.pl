@@ -124,6 +124,23 @@ countGreenOnEdge(Coords, Nr, Length) :-
 	(Y \= 9, Nr is NrRest))
 .
 
+% Cálculo da pontuação de cada equipa
+calcPurplePoints(Game, Points) :-
+	[_, _, _, EatenPoints, _, _, Coords | _ ] = Game,
+	countPurpleOnEdge(Coords, EdgePoints, _),
+	Points is EatenPoints + EdgePoints
+.
+calcWhitePoints(Game, Points) :-
+	[_, _, _, _, EatenPoints, _, _, Coords | _ ] = Game,
+	countWhiteOnEdge(Coords, EdgePoints, _),
+	Points is EatenPoints + EdgePoints
+.
+calcGreenPoints(Game, Points) :-
+	[_, _, _, _, _, EatenPoints, _, _, Coords] = Game,
+	countGreenOnEdge(Coords, EdgePoints, _),
+	Points is EatenPoints + EdgePoints
+.
+
 % Converts a winner to text
 winnerToWords(purple, 'Purple').
 winnerToWords(white, 'White').
@@ -180,19 +197,13 @@ game_over(Game, Winner) :-
 	chooseWinner(PPoints, WPoints, ZPoints, Winner)
 .
 
-% Cálculo da pontuação de cada equipa 
+% Retorna o valor do estado do jogo para cada equipa
 value(Game, purple, Value) :-
-	[_, _, _, EatenPoints, _, _, Coords | _ ] = Game,
-	countPurpleOnEdge(Coords, EdgePoints, _),
-	Value is EatenPoints + EdgePoints
+	calcPurplePoints(Game, Value)
 .
 value(Game, green, Value) :-
-	[_, _, _, _, EatenPoints, _, _, Coords | _ ] = Game,
-	countWhiteOnEdge(Coords, EdgePoints, _),
-	Value is EatenPoints + EdgePoints
+	calcGreenPoints(Game, Value)
 .
 value(Game, white, Value) :-
-	[_, _, _, _, _, EatenPoints, _, _, Coords] = Game,
-	countGreenOnEdge(Coords, EdgePoints, _),
-	Points is EatenPoints + EdgePoints
+	calcWhitePoints(Game, Value)
 .
