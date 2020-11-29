@@ -93,8 +93,13 @@ Quanto às verificações para verificar se o jogo terminou, verifica se o núme
 A avaliação de um estado de jogo é feita com recurso ao predicado *value/3*, que recebe um estado de jogo, um jogador e retorna um valor que representa a pontuação do jogador no estado de jogo. A nossa implementação deste predicado tem algumas semelhanças com o cálculo de cada pontuação de cada jogador no predicado *game_over*. Dependendo para que jogador queremos calcular o valor do tabuleiro, buscamos a sua pontuação, ou seja, o número de peças das outras equipas comidas a somar com o número das suas peças que estão no respetivo extremo que lhe faz pontuar a multiplicar por 2.
 
 ## Jogada do Computador
+Uma outra funcionalidade do nosso jogo é a possibilidade de jogar contra o computador e assistir a um jogo que o computador controla as peças brancas e as peças roxas. Para esta nova funcionalidade, foi necessário implementar um predicado (*choose_move/4*) que escolha uma jogada a fazer pelo computador de acordo com alguns critérios, variando a dificuldade.
 
+#### **Critério Aleatório**
+A dificuldade de jogo mais baixa implementada, recorre à seleção aleatória de uma jogada válida entre as jogadas retornadas por uma chamada ao predicado *valid_moves/3*. Estamos cientes de que por ser um critério aleatório, existe a probabilidade deste nível de dificuldade ser muito elevado, mas consideramos que esta probabilidade é diminuta. **Note-se que neste modo desativamos a capacidade do computador fazer capturas múltiplas.**
 
+#### Critério do Valor do Estado de Jogo resultante
+Este nível de dificuldade verfica qual das jogadas válidas determinadas pelo predicado *valid_moves/3* resulta num estado de jogo mais favorável à equipa do computador. Para este efeito, simulamos cada jogada válida num estado de jogo temporário e associamos a pontuação do jogador no novo estado jogo a cada jogada válida. Com esta associação conseguimos fazer uma ordenação com base na pontuação que cada jogada traz ao jogador/computador. Tendo a ordenação feita, basta retornarmos a jogada válida com maior pontuação associada. Repare-se que neste modo de jogo permitimos o computador decidir se lhe é benéfico efetuar capturas múltiplas e quais capturas mútliplas fazer. Geralmente, o computador vai optar por efetuar uma captura válida, uma vez que aumenta a sua pontuação no próximo estado de jogo.
 
 # Conclusão
 Tanto quanto sabemos, o programa não tem erros e todas as funcionalidades enunciadas aqui estão funcionais.
