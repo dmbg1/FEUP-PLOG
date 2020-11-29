@@ -24,7 +24,7 @@ initial([ purple, purple,
 ).*/
 
 % [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
-initial([ purple, purple,
+initial([ white, purple,
 		         	               [[empty],
 							    [empty, empty],
 						    [green, empty, green],

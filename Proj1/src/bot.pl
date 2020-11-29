@@ -35,18 +35,17 @@ choose_move(Game, Player, 1, Move) :-
     _-Move = Move1
 .
 
-maxListSubCaptures(Game, Turn, SubCaptures, SubCapture, MaxValue) :- 
-    member(SubCaptures, SubCapture), 
+maxListSubCaptures(Game, Turn, SubCaptures, SubCapture, MaxValue) :-
+    member(SubCapture, SubCaptures), 
     GameCopy = Game,
     move(Game, GameWithMove, SubCapture),
     value(GameWithMove, Turn, MaxValue),
-    \+(member(E, SubCaptures), move(GameCopy, GameCopyWithMove, E), value(GameCopyWithMove, Turn, Value), Value > MaxValue).
-maxListSubCaptures(_, _, _, _, 0).
+    \+((member(E, SubCaptures), move(GameCopy, GameCopyWithMove, E), value(GameCopyWithMove, Turn, Value), Value > MaxValue))
+.
 
 decide_multi_capture(Game, Player, Move, EndCoord) :-
     parseCapture(Move, _, _, SubCaptures),
     maxListSubCaptures(Game, Player, SubCaptures, SelectedSubCapture, Value),
-    format('VALUE: ~w  -  Selected Captures: ~w~n', [Value, Move]),
     ((Value = 0, 
         EndCoord = -1);
     (Value > 0,
