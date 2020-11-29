@@ -20,12 +20,24 @@ manageInput(1) :-
 	menu
 .
 manageInput(2) :-
+    menuDifficulties(Difficulty),
     start_game(againstBot), !,
     cls,
 	menu
 .
+menuDifficulties(Difficulty) :-
+    read(Input),
+    format('       Difficulty Menu~nChoose an option:~n', []),
+    format('1 - Random Bot~n', []),
+    format('2 - Normal Bot~n', []),
+.
 manageInput(3) :-
-    start_game(botAgainstBot), !,
+    start_game(botAgainstBot, 5), !,
+    cls,
+	menu
+.
+manageInput(5) :-
+    start_game(botAgainstBot, 0), !,
     cls,
 	menu
 .

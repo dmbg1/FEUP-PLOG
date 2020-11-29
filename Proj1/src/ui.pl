@@ -11,11 +11,11 @@ display_game(GameState) :-
 	getPlayerTurn(GameState, Player),
 	getGSPlayer(GameState, Skull),
 	getBoard(GameState, Board),
+	printPlayerTurn(Player),
 	printBoard(Board, 10), 	% 10 lines board,
 	format('  ~*c', [41, 0'-]), nl,
 	printSkull(Skull),
-	printPlayersPoints(GameState),
-	printPlayerTurn(Player)
+	printPlayersPoints(GameState)
 .
 
 /* Desenha as linhas da board recebendo como argumentos a lista que contém as informações da board
@@ -65,8 +65,8 @@ printPlayersPoints(Game) :-
 .
 
 % Clear Screen
-cls :- true
-	%write('\33\[2J')
+cls :- 
+	write('\33\[2J')
 .
 
 % Pede ao jogador as coordenadas de um movimento e recebe o input das mesmas 

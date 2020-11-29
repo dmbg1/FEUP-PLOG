@@ -69,7 +69,7 @@ captureValidMove(Game, StartCoord, EndCoord) :-
 	Content \= empty
 .
 
-% Verifica se o salto provocado pelo Move é válido
+% Verifica se o movimento da StartCoord para a EndCoord é válido
 checkValidMoveAux(Game, PieceColor, StartCoord, EndCoord) :-
 	parseCoord(StartCoord, StartY, StartX),
     parseCoord(EndCoord, EndY, EndX),
@@ -214,7 +214,8 @@ move(GameOld, GameNew, Move) :-
 	parseCapture(Move, StartCoord, EndCoord, _SubCaptures),
 	parseCoord(StartCoord, StartY, StartX),
 	parseCoord(EndCoord, EndY, EndX),
-	capturePiece(GameOld, GameNew, StartY, StartX, EndY, EndX)
+	capturePiece(GameOld, GameNew1, StartY, StartX, EndY, EndX),
+	changeSkull(GameNew1, GameNew)
 .
 
 
