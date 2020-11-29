@@ -1,3 +1,4 @@
+% Verifica se um movimento é válido num tabuleiro vazio
 freeValidMove(StartY, StartX, EndY, EndX) :-
 	EndY - StartY =:= -1,
 	EndX - StartX =:= -1
@@ -23,6 +24,7 @@ freeValidMove(StartY, StartX, EndY, EndX) :-
 	EndX - StartX =:= 1
 .
 
+% Verifica se uma captura é válida num tabuleiro vazio
 capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
 	EndY - StartY =:= -2,
 	EndX - StartX =:= -2,

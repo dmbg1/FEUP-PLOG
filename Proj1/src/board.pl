@@ -1,4 +1,4 @@
-/*% [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
+% [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
 initial([ purple, purple,
 		         	               [[empty],
 							    [empty, empty],
@@ -14,31 +14,6 @@ initial([ purple, purple,
 0, 
 0,
 [60, 70, 71, 80, 81, 82, 90, 91, 92, 93],	% Purple Coords
-[66, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
-[20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
-]  
-
-% Digito das unidades indica o numero da peça dentro da linha = X
-% Digito das dezenas indica a linha = Y
-% 	Assim tem-se uma espécie de (x, y)
-).*/
-
-% [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
-initial([ white, purple,
-		         	               [[empty],
-							    [empty, empty],
-						    [green, empty, green],
-					    [green, empty, empty, green],
-			        [empty, empty, green, empty, empty],
-		        [empty, empty, green, green, empty, empty],
-	        [purple, empty, empty, green, empty, empty, white],
-	    [empty, purple, empty, empty, empty, empty, white, white],
-  	[purple, purple, purple, empty, empty, empty, white, white, white],
-[empty, purple, empty, purple, empty, purple, white, white, white, white]],
-0,  
-0, 
-0,
-[60, 71, 80, 81, 82, 91, 93, 95],	% Purple Coords
 [66, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
 [20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
 ]  
@@ -75,7 +50,7 @@ setPiece(Piece, GameStateOld, GameStateNew, Y, X) :-
 	GameStateNew = [Gs, Player, NewBoard, PP, WP, ZP | T]
 .
 
-% Modifica a pontuação de um jogador ou zombie. Predicado é chamado quando uma peça é comida para atualizar o estado de jogo
+% Modifica a pontuação de um jogador ou zombie. Predicado é chamado quando uma peça é comida para atualizar o 3º, 4º ou 5º parâmetros do estado de jogo
 purpleEaten(GameOld, GameNew) :-
 	[GS, Turn, Board, PP, WP, ZP | T] = GameOld,
 	W1 is WP + 1,
@@ -95,16 +70,19 @@ zombieEaten(GameOld, GameNew) :-
 	GameNew = [GS, Turn, Board, P1, W1, ZP | T]
 .
 
+% Decomposição de uma coordenada em valores Y e X
 parseCoord(Coord, Y, X) :-
 	X is Coord rem 10,
 	Y is div(Coord, 10)	
 .
 
+% Validação de uma coordenada
 checkValidCoord(Y, X) :-
 	X >= 0,
 	X =< Y
 .
 
+% Retorna o conteúdo do célula do tabuleiro na posição Y, X ou uma coordenada
 content(Game, Y, X, Content) :-
 	nth0(2, Game, Board),
 	nth0(Y, Board, Line),
@@ -117,7 +95,7 @@ content(Game, Coord, Content) :-
 	nth0(X, Line, Content)
 .
 
-
+% Conta o número de peças no extremo tabuleiro oposto à posição inicial duma equipa
 countPurpleOnEdge([], 0, 0).
 countPurpleOnEdge(Coords, Nr, Length) :-
 	[Coord | Rest] = Coords,
@@ -127,12 +105,6 @@ countPurpleOnEdge(Coords, Nr, Length) :-
 	((Y = X, Nr is NrRest + 2);
 	(Y \= X, Nr is NrRest))
 .
-calcPurplePoints(Game, Points) :-
-	[_, _, _, EatenPoints, _, _, Coords | _ ] = Game,
-	countPurpleOnEdge(Coords, EdgePoints, _),
-	Points is EatenPoints + EdgePoints
-.
-
 countWhiteOnEdge([], 0, 0).
 countWhiteOnEdge(Coords, Nr, Length) :-
 	[Coord | Rest] = Coords,
@@ -142,12 +114,6 @@ countWhiteOnEdge(Coords, Nr, Length) :-
 	((X = 0, Nr is NrRest + 2);
 	(X \= 0, Nr is NrRest))
 .
-calcWhitePoints(Game, Points) :-
-	[_, _, _, _, EatenPoints, _, _, Coords | _ ] = Game,
-	countWhiteOnEdge(Coords, EdgePoints, _),
-	Points is EatenPoints + EdgePoints
-.
-
 countGreenOnEdge([], 0, -1).
 countGreenOnEdge(Coords, Nr, Length) :-
 	[Coord | Rest] = Coords,
@@ -157,12 +123,8 @@ countGreenOnEdge(Coords, Nr, Length) :-
 	((Y = 9, Nr is NrRest + 2);
 	(Y \= 9, Nr is NrRest))
 .
-calcGreenPoints(Game, Points) :-
-	[_, _, _, _, _, EatenPoints, _, _, Coords] = Game,
-	countGreenOnEdge(Coords, EdgePoints, _),
-	Points is EatenPoints + EdgePoints
-.
 
+% Converts a winner to text
 winnerToWords(purple, 'Purple').
 winnerToWords(white, 'White').
 winnerToWords(green, 'Green').
@@ -218,13 +180,19 @@ game_over(Game, Winner) :-
 	chooseWinner(PPoints, WPoints, ZPoints, Winner)
 .
 
-
+% Cálculo da pontuação de cada equipa 
 value(Game, purple, Value) :-
-	calcPurplePoints(Game, Value)
+	[_, _, _, EatenPoints, _, _, Coords | _ ] = Game,
+	countPurpleOnEdge(Coords, EdgePoints, _),
+	Value is EatenPoints + EdgePoints
 .
 value(Game, green, Value) :-
-	calcGreenPoints(Game, Value)
+	[_, _, _, _, EatenPoints, _, _, Coords | _ ] = Game,
+	countWhiteOnEdge(Coords, EdgePoints, _),
+	Value is EatenPoints + EdgePoints
 .
 value(Game, white, Value) :-
-	calcWhitePoints(Game, Value)
+	[_, _, _, _, _, EatenPoints, _, _, Coords] = Game,
+	countGreenOnEdge(Coords, EdgePoints, _),
+	Points is EatenPoints + EdgePoints
 .
