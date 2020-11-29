@@ -232,7 +232,7 @@ applyCapture(GameOld, GameNew, Player, Capture) :-
 	applySubCaptures(GameNew1, GameNew, Player, SubCaptures)
 .
 
-
+%
 valid_captures(Game, Player, StartCoord, CapturesList) :-
     findall(Capture, (
 		between(-2, 2, XDiff), (XDiff = -2 ; XDiff = 0 ; XDiff = 2),

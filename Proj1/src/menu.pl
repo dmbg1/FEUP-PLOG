@@ -1,13 +1,16 @@
 /* Menu do jogo que recebe como input 1 para jogar no modo de jogador contra jogador, 
 2 para jogar no modo de jogador contra computador, 3 para visualizar o modo computador
-contra computador, 4 para verificar as instruções de jogo e 0 para sair do jogo*/
+contra computador com intervalos de 5 segundos entre jogadas, 4 para visualizar o modo computador
+contra computador sem intervalos entre jogadas, 5 para verificar as instruções de jogo 
+e 0 para sair do jogo*/
 menu :-
     format('    ---------------~n    | GREEN SKULL |~n    ---------------~n', []),
     format('       Main Menu~nChoose an option:~n', []),
     format('1 - Play (2 Players)~n', []),
     format('2 - Play (Against PC)~n', []),
-    format('3 - Watch PC against PC~n', []),
-    format('4 - Instructions~n', []),
+    format('3 - Watch PC against PC with 5 seconds between turns~n', []),
+    format('4 - Watch PC against PC with no time between turns~n', []),
+    format('5 - Instructions~n', []),
     format('0 - Exit~n', []),
     read(Input),
     manageInput(Input)
@@ -15,33 +18,27 @@ menu :-
 
 /* Trata das opções de input anteriormente referidas */
 manageInput(1) :- 
-    start_game(noBot), !,
+    cls,
+    start_game(noBot, 0, 0), !,
     cls,
 	menu
 .
 manageInput(2) :-
-    menuDifficulties(Difficulty),
-    start_game(againstBot), !,
+    !,
     cls,
-	menu
-.
-menuDifficulties(Difficulty) :-
-    read(Input),
-    format('       Difficulty Menu~nChoose an option:~n', []),
-    format('1 - Random Bot~n', []),
-    format('2 - Normal Bot~n', []),
+    difficultyMenu(againstBot, 0)
 .
 manageInput(3) :-
-    start_game(botAgainstBot, 5), !,
+    !,
     cls,
-	menu
-.
-manageInput(5) :-
-    start_game(botAgainstBot, 0), !,
-    cls,
-	menu
+    difficultyMenu(botAgainstBot, 5)
 .
 manageInput(4) :-
+    !,
+    cls,
+    difficultyMenu(botAgainstBot, 0)
+.
+manageInput(5) :-
     cls,
     format('Your objective is to have more points than the other player and the zombies.~n', []),
     format('Note that the zombies can win the game too.~n~n', []),
@@ -63,4 +60,35 @@ manageInput(_) :-
     cls,
     format('Not an option, try again...~n', []), !, menu
 .
+
+% Menu para escolher a dificuldade de jogo (Bot aleatório ou Bot normal)
+difficultyMenu(Mode, BetweenTurns) :-
+    format('       Difficulty Menu~nChoose an option:~n', []),
+    format('1 - Random Bot~n', []),
+    format('2 - Normal Bot~n', []),
+    format('0 - Go Back~n', []), 
+    read(Input),
+    manageDifficultyInput(Input, Mode, BetweenTurns)
+.
+manageDifficultyInput(1, Mode, BetweenTurns) :-
+    cls,
+    start_game(Mode, BetweenTurns, 0), !,
+    cls,
+	menu
+.
+manageDifficultyInput(2, Mode, BetweenTurns) :-
+    cls,
+    start_game(Mode, BetweenTurns, 1), !,
+    cls,
+	menu
+.
+manageDifficultyInput(0, _, _) :-
+    !,
+    cls,
+    menu
+.
+manageDifficultyInput(_, _) :-
+    format('Not an option, try again...~n', []), !, difficultyMenu(_Difficulty)
+.
+
     

@@ -1,7 +1,7 @@
 % Dá início ao jogo recebendo como argumento o modo de jogo (bot vs bot, player vs bot e player vs bot)
-start_game(Mode, BetweenTurns) :-
+start_game(Mode, BetweenTurns, Difficulty) :-
 	initial(Game),
-	gameLoop(Game, Mode, BetweenTurns)
+	gameLoop(Game, Mode, BetweenTurns, Difficulty)
 .
 
 % Troca o jogador que contém a skull criando um novo estado de jogo contendo informação
@@ -59,7 +59,7 @@ requestMove(Game, PieceColor, Move) :-
 	requestMove(Game, PieceColor, Move)
 .
 
-gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, noBot) :-
+gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, noBot, _Difficulty) :-
 	getGSPlayer(GameStateOld, Gs),
 	Gs = Turn,
 	cls,
@@ -72,7 +72,7 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, noBot) :-
 	move(GameStateOld, GameStateNew1, Move),
 	multiCapture(GameStateNew1, GameStateNew, Turn, Move, noBot)
 .
-gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, againstBot) :-
+gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, againstBot, Difficulty) :-
 	getGSPlayer(GameStateOld, Gs),
 	Gs = Turn,
 
@@ -85,23 +85,23 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, againstBot) :-
 			write('Move Zombie'), nl,
 			requestMove(GameStateOld, green, Move));
 		(Turn = white,
-			choose_move(GameStateOld, green, 1, Move),
+			choose_move(GameStateOld, green, Difficulty, Move),
 			Move \= [])
 	),
 
 	move(GameStateOld, GameStateNew1, Move),
 	multiCapture(GameStateNew1, GameStateNew, Turn, Move, againstBot)
 .
-gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, botAgainstBot) :-
+gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, botAgainstBot, Difficulty) :-
 	getGSPlayer(GameStateOld, Gs),
 	Gs = Turn,
-	choose_move(GameStateOld, green, 1, Move),
+	choose_move(GameStateOld, green, Difficulty, Move),
 	Move \= [],
 
 	move(GameStateOld, GameStateNew1, Move),
 	multiCapture(GameStateNew1, GameStateNew, Turn, Move, botAgainstBot)
 .
-gsVerificationsAndTurn(GameStateOld, _, GameStateOld, _).
+gsVerificationsAndTurn(GameStateOld, _, GameStateOld, _, _).
 
 multiCapture(GameOld, GameNew, Turn, Move, noBot) :-
 	parseCapture(Move, _, StartCoord, SubCaptures),
@@ -160,7 +160,7 @@ multiCapture(GameOld, GameNew, Turn, Move, botAgainstBot) :-
 multiCapture(Game, Game, _, _, _).
 
 % Rodada do jogo
-gameTurn(GameStateOld, GameStateNew, noBot) :-
+gameTurn(GameStateOld, GameStateNew, noBot, Difficulty) :-
 	getPlayerTurn(GameStateOld, Turn),
 	requestMove(GameStateOld, Turn, Move),
 	move(GameStateOld, GameStateNew1, Move),
@@ -170,16 +170,17 @@ gameTurn(GameStateOld, GameStateNew, noBot) :-
 		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
 		;
 		(		
-			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, noBot),
+			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, noBot, Difficulty),
 			changeTurn(GameStateNew3, GameStateNew)
 		)
 	)
 .
-gameTurn(GameStateOld, GameStateNew, againstBot) :-
+gameTurn(GameStateOld, GameStateNew, againstBot, Difficulty) :-
 	getPlayerTurn(GameStateOld, Turn),
 	( 	
+
 		(Turn \= white, requestMove(GameStateOld, Turn, Move));
-		(Turn = white, choose_move(GameStateOld, Turn, 1, Move))
+		(Turn = white, choose_move(GameStateOld, Turn, Difficulty, Move))
 	),
 
 	move(GameStateOld, GameStateNew1, Move),
@@ -189,14 +190,14 @@ gameTurn(GameStateOld, GameStateNew, againstBot) :-
 		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
 		;
 		(		
-			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, againstBot),
+			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, againstBot, Difficulty),
 			changeTurn(GameStateNew3, GameStateNew)
 		)
 	)
 .
-gameTurn(GameStateOld, GameStateNew, botAgainstBot) :-
+gameTurn(GameStateOld, GameStateNew, botAgainstBot, Difficulty) :-
 	getPlayerTurn(GameStateOld, Turn),
-	choose_move(GameStateOld, Turn, 1, Move),
+	choose_move(GameStateOld, Turn, Difficulty, Move),
 	move(GameStateOld, GameStateNew1, Move),
 
 	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, botAgainstBot),
@@ -204,19 +205,19 @@ gameTurn(GameStateOld, GameStateNew, botAgainstBot) :-
 		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
 		;
 		(		
-			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, botAgainstBot),
+			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, botAgainstBot, Difficulty),
 			changeTurn(GameStateNew3, GameStateNew)
 		)
 	)
 .
 
-% Loop do jogo
-gameLoop(GameOld, Mode, BetweenTurns) :-
+% Loop do jogo 
+gameLoop(GameOld, Mode, BetweenTurns, Difficulty) :-
     display_game(GameOld),
-    gameTurn(GameOld, GameNew, Mode),
+    gameTurn(GameOld, GameNew, Mode, Difficulty),
     (
-        (game_over(GameNew, Winner), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]), sleep(5));
+        (game_over(GameNew, Winner), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]), sleep(BetweenTurns));
         (((Mode = botAgainstBot, sleep(BetweenTurns)); (true)), cls,
-			gameLoop(GameNew, Mode))
+			gameLoop(GameNew, Mode, BetweenTurns, Difficulty))
     )
 .
