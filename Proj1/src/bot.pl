@@ -1,10 +1,4 @@
 % choose_move(Game, Player, Level, Move) 
-choose_move(Game, Player, 0, Move) :-
-    valid_moves(Game, Player, MovesList),
-    length(MovesList, Len),
-    random(0, Len, I),
-    nth0(I, MovesList, Move)
-.
 
 movesWithValue(_, _, [], []).
 movesWithValue(Game, Player, [Move | Rest], [Value-Move | RestValues]) :-
@@ -16,6 +10,12 @@ movesWithValue(Game, Player, [Move | Rest], [Value-Move | RestValues]) :-
     movesWithValue(Game, Player, Rest, RestValues)
 .
 
+choose_move(Game, Player, 0, Move) :-
+    valid_moves(Game, Player, MovesList),
+    length(MovesList, Len),
+    random(0, Len, I),
+    nth0(I, MovesList, Move)
+.
 choose_move(Game, green, 1, Move) :-
     valid_moves(Game, green, MovesList),
     movesWithValue(Game, green, MovesList, MovesValuesList),
@@ -35,11 +35,20 @@ choose_move(Game, Player, 1, Move) :-
     _-Move = Move1
 .
 
+maxListSubCaptures(Game, Turn, SubCaptures, SubCapture, MaxValue) :- 
+    member(SubCaptures, SubCapture), 
+    GameCopy = Game,
+    move(Game, GameWithMove, SubCapture),
+    value(GameWithMove, Turn, MaxValue),
+    \+(member(E, SubCaptures), move(GameCopy, GameCopyWithMove, E), value(GameCopyWithMove, Turn, Value), Value > MaxValue).
+maxListSubCaptures(_, _, _, _, 0).
+
 decide_multi_capture(Game, Player, Move, EndCoord) :-
-    move(Game, GameWithMove, Move),
-    value(GameWithMove, Player, Value),
-    ((Value=0, 
+    parseCapture(Move, _, _, SubCaptures),
+    maxListSubCaptures(Game, Player, SubCaptures, SelectedSubCapture, Value),
+    format('VALUE: ~w  -  Selected Captures: ~w~n', [Value, Move]),
+    ((Value = 0, 
         EndCoord = -1);
     (Value > 0,
-        Move = [capture, _, EndCoord]))
+        [capture, _, EndCoord, _SubSubCapture] = SelectedSubCapture))
 .

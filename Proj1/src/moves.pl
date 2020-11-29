@@ -1,3 +1,28 @@
+freeValidMove(StartY, StartX, EndY, EndX) :-
+	EndY - StartY =:= -1,
+	EndX - StartX =:= -1
+.
+freeValidMove(StartY, StartX, EndY, EndX) :-
+	EndY - StartY =:= -1,
+	EndX - StartX =:= 0
+.
+freeValidMove(StartY, StartX, EndY, EndX) :-
+	EndY - StartY =:= 0,
+	EndX - StartX =:= -1
+.
+freeValidMove(StartY, StartX, EndY, EndX) :-
+	EndY - StartY =:= 0,
+	EndX - StartX =:= 1
+.
+freeValidMove(StartY, StartX, EndY, EndX) :-
+	EndY - StartY =:= 1,
+	EndX - StartX =:= 0
+.
+freeValidMove(StartY, StartX, EndY, EndX) :-
+	EndY - StartY =:= 1,
+	EndX - StartX =:= 1
+.
+
 capturedCoord(StartY, StartX, EndY, EndX, MidY, MidX) :-
 	EndY - StartY =:= -2,
 	EndX - StartX =:= -2,
@@ -45,7 +70,7 @@ captureValidMove(Game, StartCoord, EndCoord) :-
 .
 
 % Verifica se o salto provocado pelo Move é válido
-checkValidJump(Game, PieceColor, StartCoord, EndCoord) :-
+checkValidMoveAux(Game, PieceColor, StartCoord, EndCoord) :-
 	parseCoord(StartCoord, StartY, StartX),
     parseCoord(EndCoord, EndY, EndX),
 	checkValidCoord(StartY, StartX),
@@ -63,11 +88,14 @@ checkValidJump(Game, PieceColor, StartCoord, EndCoord) :-
 */
 checkValidMove(Game, Move, PieceColor) :-
 	parseMove(Move, StartCoord, EndCoord),
-	checkValidJump(Game, Move, PieceColor, StartCoord, EndCoord)
+	checkValidMoveAux(Game, PieceColor, StartCoord, EndCoord),
+	parseCoord(StartCoord, StartY, StartX),
+    parseCoord(EndCoord, EndY, EndX),
+	freeValidMove(StartY, StartX, EndY, EndX)
 .
 checkValidMove(Game, Move, PieceColor) :-
 	parseCapture(Move, StartCoord, EndCoord, _SubCaptures),
-	checkValidJump(Game, Move, PieceColor, StartCoord, EndCoord),
+	checkValidMoveAux(Game, PieceColor, StartCoord, EndCoord),
 	captureValidMove(Game, StartCoord, EndCoord)
 .
 

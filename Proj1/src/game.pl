@@ -115,6 +115,7 @@ multiCapture(GameOld, GameNew, Turn, Move, Mode) :-
 		decide_multi_capture(GameOld, Turn, Move, EndCoord))
 	),
 
+
 	EndCoord \= -1,
 	(
 		(
@@ -130,7 +131,7 @@ multiCapture(Game, Game, _, _, _).
 % Rodada do jogo
 gameTurn(GameStateOld, GameStateNew, Mode) :-
 	getPlayerTurn(GameStateOld, Turn),
-
+	format('Turn: ~w~n', [Turn]),
 	((Mode = noBot,
 		requestMove(GameStateOld, Turn, Move));
 	 (Mode = againstBot,
@@ -145,30 +146,38 @@ gameTurn(GameStateOld, GameStateNew, Mode) :-
 	),
 
 	[MoveType|_] = Move,
-
+	format('Move: ~w~n', [Move]),
 	move(GameStateOld, GameStateNew1, Move),
 
 	multiCapture(GameStateNew1, GameStateNew2, Turn, Move, Mode),
-	gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, Mode),
-	getGSPlayer(GameStateNew3, GS),
+
 	(
-	(GS = Turn, MoveType = capture, 
-		changeSkull(GameStateNew3, GameStateNew4),
-		changeTurn(GameStateNew4, GameStateNew));
-	(GS \= Turn,
-		changeTurn(GameStateNew3, GameStateNew));
-	(GS=Turn,
-		changeTurn(GameStateNew3, GameStateNew))
+		(game_over(GameStateNew2, _), GameStateNew = GameStateNew2)
+		;
+		(		
+			gsVerificationsAndTurn(GameStateNew2, Turn, GameStateNew3, Mode),
+			getGSPlayer(GameStateNew3, GS),
+			(
+			(GS = Turn, MoveType = capture, 
+				changeSkull(GameStateNew3, GameStateNew4),
+				changeTurn(GameStateNew4, GameStateNew));
+			(GS \= Turn,
+				changeTurn(GameStateNew3, GameStateNew));
+			(GS=Turn,
+				changeTurn(GameStateNew3, GameStateNew))
+			)
+		)
 	)
+	
 .
 
 gameLoop(GameOld, Mode) :-
-	cls,
+	%cls,
     display_game(GameOld),
     gameTurn(GameOld, GameNew, Mode),
     (
-        (game_over(GameNew, Winner), 
-         gameLoop(GameNew, Mode));
-        (winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]), sleep(5))   
+        (game_over(GameNew, Winner), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]), sleep(5))   
+		;
+        (gameLoop(GameNew, Mode))
     )
 .

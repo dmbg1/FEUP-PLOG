@@ -1,4 +1,4 @@
-% [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
+/*% [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
 initial([ purple, purple,
 		         	               [[empty],
 							    [empty, empty],
@@ -14,7 +14,32 @@ initial([ purple, purple,
 0, 
 0,
 [60, 70, 71, 80, 81, 82, 90, 91, 92, 93],	% Purple Coords
-[66, 60, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
+[66, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
+[20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
+]  
+
+% Digito das unidades indica o numero da peça dentro da linha = X
+% Digito das dezenas indica a linha = Y
+% 	Assim tem-se uma espécie de (x, y)
+).*/
+
+% [Green Skull, Turn, Board, PurpleEatenPoints, WhiteEatenPoints, ZombieEatenPoints, PurpleCoords, WhiteCoords, ZombieCoords]
+initial([ purple, purple,
+		         	               [[empty],
+							    [empty, empty],
+						    [green, empty, green],
+					    [green, empty, empty, green],
+			        [empty, empty, green, empty, empty],
+		        [empty, empty, green, green, empty, empty],
+	        [purple, empty, empty, green, empty, empty, white],
+	    [empty, purple, empty, empty, empty, empty, white, white],
+  	[purple, purple, purple, empty, empty, empty, white, white, white],
+[empty, purple, empty, purple, empty, purple, white, white, white, white]],
+0,  
+0, 
+0,
+[60, 71, 80, 81, 82, 91, 93, 95],	% Purple Coords
+[66, 76, 77, 86, 87, 88, 96, 97, 98, 99],   % White Coords
 [20, 30, 22, 33, 42, 52, 53, 63]			% Zombie Coords
 ]  
 
@@ -182,15 +207,15 @@ game_over(Game, Winner) :-
 	PPoints is PEatenPoints + PEdgePoints,
 	WPoints is WEatenPoints + WEdgePoints,
 	ZPoints is ZEatenPoints + ZEdgePoints,
-
-	chooseWinner(PPoints, WPoints, ZPoints, Winner),
-
-	PLength \= 0,
-	WLength \= 0,
-	ZLength \= 0,
-	PEdgePoints =\= 2 * PLength,
-	WEdgePoints =\= 2 * WLength,
-	ZEdgePoints =\= 2 * ZLength
+	(
+		PLength = 0;
+		WLength = 0;
+		ZLength = 0;
+		PEdgePoints =:= 2 * PLength;
+		WEdgePoints =:= 2 * WLength;
+		ZEdgePoints =:= 2 * ZLength
+	),
+	chooseWinner(PPoints, WPoints, ZPoints, Winner)
 .
 
 

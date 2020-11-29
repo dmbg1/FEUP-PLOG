@@ -65,8 +65,8 @@ printPlayersPoints(Game) :-
 .
 
 % Clear Screen
-cls :-
-	write('\33\[2J')
+cls :- true
+	%write('\33\[2J')
 .
 
 % Pede ao jogador as coordenadas de um movimento e recebe o input das mesmas 
