@@ -101,6 +101,7 @@ checkValidMove(Game, Move, PieceColor) :-
 	captureValidMove(Game, StartCoord, EndCoord)
 .
 
+% Converte as coordenadas para iniciais e finais para o formato a adicionar na lista de jogadas válidas 
 getMove(StartCoord, EndCoord, ValidMove) :-
     append([], [move, StartCoord, EndCoord], ValidMove)
 .
@@ -109,6 +110,8 @@ getMove(StartY, StartX, EndY, EndX, ValidMove) :-
 	getCoord(EndY, EndX, EndCoord),
 	getMove(StartCoord, EndCoord, ValidMove)
 .
+
+% Extrai as coordenadas do Move
 parseMove(Move, StartCoord, EndCoord) :-
 	nth0(0, Move, MoveType),
 	MoveType = move,
@@ -116,6 +119,7 @@ parseMove(Move, StartCoord, EndCoord) :-
 	nth0(2, Move, EndCoord)
 .
 
+% Identico ao getMove mas para capturas válidas
 getCapture(StartCoord, EndCoord, ValidMove) :-
     append([], [capture, StartCoord, EndCoord, []], ValidMove)
 .
@@ -124,6 +128,7 @@ getCapture(StartY, StartX, EndY, EndX, ValidMove) :-
 	getCoord(EndY, EndX, EndCoord),
 	getCapture(StartCoord, EndCoord, ValidMove)
 .
+% Extrai as coordenadas e subcoordenads de uma captura válida
 parseCapture(Capture, StartCoord, EndCoord, SubCaptures) :-
 	nth0(0, Capture, MoveType),
 	MoveType = capture,
@@ -234,7 +239,7 @@ applyCapture(GameOld, GameNew, Player, Capture) :-
 	applySubCaptures(GameNew1, GameNew, Player, SubCaptures)
 .
 
-%
+% Obtém as single captures válidas (capturas sem subcapturas)
 valid_captures(Game, Player, StartCoord, CapturesList) :-
     findall(Capture, (
 		between(-2, 2, XDiff), (XDiff = -2 ; XDiff = 0 ; XDiff = 2),

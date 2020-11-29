@@ -64,6 +64,7 @@ requestMove(Game, PieceColor, Move) :-
 	requestMove(Game, PieceColor, Move)
 .
 
+% Responsável pelas jogadas com as peças verdes dos jogadores com a green skull
 gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, noBot, _Difficulty) :-
 	getGSPlayer(GameStateOld, Gs),
 	Gs = Turn,
@@ -108,6 +109,8 @@ gsVerificationsAndTurn(GameStateOld, Turn, GameStateNew, botAgainstBot, Difficul
 .
 gsVerificationsAndTurn(GameStateOld, _, GameStateOld, _, _).
 
+
+% Lida com situações de captura múltipla
 multiCapture(GameOld, GameNew, Turn, Move, noBot, _) :-
 	parseCapture(Move, _, StartCoord, SubCaptures),
 	length(SubCaptures, Len),
