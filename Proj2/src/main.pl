@@ -29,11 +29,6 @@ getRowValues(RowClues, Solution) :-
     restrictions(Solution, RowClues),
     labeling([], Solution)
 .
-rowRestrictions([], []).
-rowRestrictions([X1, X2|Rest], [ClueRow|RestClues]) :-
-    (X1 * X2 #= ClueRow + 1 ; X1 * X2 #= ClueRow - 1),
-    restrictions(Rest, RestClues)
-.
 
 getColValues(ColClues, Solution) :-
     length(ColClues, GridSize),
@@ -44,9 +39,11 @@ getColValues(ColClues, Solution) :-
     restrictions(Solution, ColClues),
     labeling([], Solution)
 .
-colRestrictions([], []).
-colRestrictions([X1, X2|Rest], [ClueCol|RestClues]) :-
-    (X1 * X2 #= ClueCol + 1 ; X1 * X2 #= ClueCol - 1),
+
+restrictions([], []).
+restrictions([X1, X2|Rest], [Clue|RestClues]) :-
+    (X1 * X2 #= Clue + 1 ; X1 * X2 #= Clue - 1),
     restrictions(Rest, RestClues)
 .
+
 
