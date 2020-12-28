@@ -7,7 +7,11 @@
 % RowValue Solution List format -> [1,3,2,7,5,6,4,8]
 % ColValue Solution List format -> [1,4,2,5,3,8,7,6]
 
-:-use_module(library(clpfd)).
+:- use_module(library(lists)).
+:- use_module(library(clpfd)).
+:- use_module(library(random)).
+:- use_module(library(clpb)).
+:- use_module(library(file_systems)).
 
 example([[3, 11, 23, 41],
          [2, 13, 29, 31]]).
@@ -21,50 +25,40 @@ main :-
 .
 generateBoard(BoardSize) :-
     length(Board, 2),
-        write(4),nl,
-
-    [RowClues, ColClues] = Board,
-        write(5),nl,
-
     length(RowClues, BoardSize),
-        write(6),nl,
-
     length(ColClues, BoardSize),
-        write(7),nl,
-
-    MaxClue is BoardSize * 2 + 1,
-        write(8),nl,
-
+    MaxClue is (BoardSize * 2 - 1) * (BoardSize * 2),
     domain(RowClues, 2, MaxClue),
-        write(9),nl,
-
     domain(ColClues, 2, MaxClue),
-        write(10),nl,
-
     append(RowClues, ColClues, Clues),
-        write(11), nl,
-
     all_distinct(Clues),
-        write(3),nl,
-    labeling([], Clues),
-    write(15), nl,
-    findall(Clue,(
-        member(Clue, Clues),
-        solveBoard(Clues, Solution)
-    ), Boards),
-    write(Boards),
-    write(1),nl,
-    labeling([], Board), 
-    write(2),nl,
-    write(Board), nl,
-    write(Solution), nl
+    solveBoard([RowClues, ColClues], _Solution),
+    labeling([], RowClues),
+    labeling([], ColClues),
+    [RowClues, ColClues] = Board,
+    write(Board), nl
 .
+mySelValores(Var, _Rest, BB, BB1) :-
+    fd_set(Var, Set),
+    select_best_value(Set, Value),
+    (   
+        first_bound(BB, BB1), Var #= Value
+        ;   
+        later_bound(BB, BB1), Var #\= Value
+    ).
+
+select_best_value(Set, BestValue):-
+    fdset_to_list(Set, Lista),
+    length(Lista, Len),
+    random(0, Len, RandomIndex),
+    write(Len), nl,
+    nth0(RandomIndex, Lista, BestValue).
+
+
+
 solveBoard([ColClues, RowClues],[RowValues, ColValues]) :-
-    write(RowClues),nl,
     getValues(RowClues, RowValues),
-    write(12),nl,
-    getValues(ColClues, ColValues),
-    write(14), nl
+    getValues(ColClues, ColValues)
 .
 
 getValues(Clues, Solution) :-
@@ -73,9 +67,7 @@ getValues(Clues, Solution) :-
     length(Solution, MaxValue),
     domain(Solution, 1, MaxValue),
     all_distinct(Solution),
-    write(a), nl,
     restrictions(Solution, Clues),
-    write(s), nl,
     labeling([], Solution)
 .
 restrictions([], []).
