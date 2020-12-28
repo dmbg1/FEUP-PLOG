@@ -19,9 +19,8 @@ example([[3, 11, 23, 41],
 
 main :-
     example(Board),
-    solveBoard(Board, [RowValues, ColValues]),
-    write(RowValues), nl,
-    write(ColValues), nl
+    solveBoard(Board, SolutionMatrix),
+    write(SolutionMatrix), nl
 .
 generateBoard(BoardSize) :-
     length(Board, 2),
@@ -56,9 +55,51 @@ select_best_value(Set, BestValue):-
 
 
 
-solveBoard([ColClues, RowClues],[RowValues, ColValues]) :-
+solveBoard([ColClues, RowClues], SolutionMatrix) :-
     getValues(RowClues, RowValues),
-    getValues(ColClues, ColValues)
+    getValues(ColClues, ColValues),
+    length(RowClues, Size),
+    getDisplayMatrix([RowValues, ColValues], SolutionMatrix, Size)
+.
+
+getDisplayMatrix(Solution, DisplayMatrix, Size) :-
+    length(DisplayMatrix1, Size),
+    maplist(same_length(DisplayMatrix1), DisplayMatrix1),
+    emptyMatrix(DisplayMatrix1, Size),
+    fillWithSolution(DisplayMatrix1, Solution, 1, DisplayMatrix)
+.
+
+fillWithSolution(Matrix, [RowValues, ColValues], Y2, FinalMatrix) :- 
+    length(RowValues, AmountOfValues),
+    Y2 =< AmountOfValues - 1,
+    Y1 is Y2 - 1,
+    nth0(Y1, RowValues, Value1),
+    LineCoord is Y1 // 2,
+    nth0(X1, ColValues, Value1),
+    ColCoord1 is X1 // 2,
+    setValue(Value1, Matrix, Matrix1, LineCoord, ColCoord1),
+    nth0(Y2, RowValues, Value2),
+    nth0(X2, ColValues, Value2),
+    ColCoord2 is X2 // 2,
+    setValue(Value2, Matrix1, Matrix2, LineCoord, ColCoord2),    
+    NextIndex is Y2 + 2,
+    fillWithSolution(Matrix2, [RowValues, ColValues], NextIndex, FinalMatrix)
+.
+fillWithSolution(FinalMatrix, _, _, FinalMatrix).
+
+emptyMatrix([], _).
+emptyMatrix([Row|RestMatrix], Size) :-
+    emptyRow(Row),
+    emptyMatrix(RestMatrix, Size)
+.
+emptyRow([]).
+emptyRow([0|RestRow]) :- emptyRow(RestRow).
+
+setValue(Value, OldBoard, NewBoard, Y, X) :-
+    nth0(Y, OldBoard, Row, TmpBoard),
+	nth0(X, Row, _, TmpRow),
+	nth0(X, NewRow, Value, TmpRow),
+	nth0(Y, NewBoard, NewRow, TmpBoard)
 .
 
 getValues(Clues, Solution) :-
