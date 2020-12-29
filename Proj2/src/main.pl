@@ -22,6 +22,7 @@ main :-
     solveBoard(Board, SolutionMatrix),
     write(SolutionMatrix), nl
 .
+
 generateBoard(BoardSize) :-
     length(Board, 2),
     length(RowClues, BoardSize),
@@ -54,7 +55,6 @@ select_best_value(Set, BestValue):-
     nth0(RandomIndex, Lista, BestValue).
 
 
-
 solveBoard([ColClues, RowClues], SolutionMatrix) :-
     getValues(RowClues, RowValues),
     getValues(ColClues, ColValues),
@@ -68,21 +68,20 @@ getDisplayMatrix(Solution, DisplayMatrix, Size) :-
     emptyMatrix(DisplayMatrix1, Size),
     fillWithSolution(DisplayMatrix1, Solution, 1, DisplayMatrix)
 .
-
-fillWithSolution(Matrix, [RowValues, ColValues], Y2, FinalMatrix) :- 
+fillWithSolution(Matrix, [RowValues, ColValues], SecondRowValueIndex, FinalMatrix) :- 
     length(RowValues, AmountOfValues),
-    Y2 =< AmountOfValues - 1,
-    Y1 is Y2 - 1,
+    SecondRowValueIndex =< AmountOfValues - 1,
+    Y1 is SecondRowValueIndex - 1,
     nth0(Y1, RowValues, Value1),
     LineCoord is Y1 // 2,
     nth0(X1, ColValues, Value1),
     ColCoord1 is X1 // 2,
     setValue(Value1, Matrix, Matrix1, LineCoord, ColCoord1),
-    nth0(Y2, RowValues, Value2),
+    nth0(SecondRowValueIndex, RowValues, Value2),
     nth0(X2, ColValues, Value2),
     ColCoord2 is X2 // 2,
     setValue(Value2, Matrix1, Matrix2, LineCoord, ColCoord2),    
-    NextIndex is Y2 + 2,
+    NextIndex is SecondRowValueIndex + 2,
     fillWithSolution(Matrix2, [RowValues, ColValues], NextIndex, FinalMatrix)
 .
 fillWithSolution(FinalMatrix, _, _, FinalMatrix).
