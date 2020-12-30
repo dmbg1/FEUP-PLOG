@@ -16,6 +16,8 @@ main :-
     getSolutionRowClues(SolutionMatrix, 1, 1, RClues),
     getSolutionColClues(SolutionMatrix, 1, 1, CClues),
     [RClues, CClues] = Clues,
+    write(Clues), nl,
+    write(SolutionMatrix), nl,
     length(SolutionMatrix, Size),
     print_problem_matrix(SolutionMatrix, Size, Clues)
 .

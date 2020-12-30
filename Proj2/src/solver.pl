@@ -2,6 +2,8 @@ solveBoard(Clues, SolutionMatrix) :-
     [RowClues, ColClues] = Clues,
     getSolutionValues(RowClues, RowValues),
     getSolutionValues(ColClues, ColValues),
+    write(RowValues), nl,
+    write(ColValues), nl,
     length(RowClues, Size),
     getSolutionMatrix([RowValues, ColValues], SolutionMatrix, Size)
 .
@@ -32,9 +34,9 @@ fillWithSolution(Matrix, Solution, SecondRowValueIndex, FinalMatrix) :-
     length(RowValues, AmountOfValues),
     SecondRowValueIndex =< AmountOfValues - 1,
     X1 is SecondRowValueIndex - 1,
-    nth0(Y1, RowValues, Value1),
+    nth0(X1, RowValues, Value1),
     LineCoord is X1 // 2,
-    nth0(X1, ColValues, Value1),
+    nth0(Y1, ColValues, Value1),
     ColCoord1 is Y1 // 2,
     setValue(Value1, Matrix, Matrix1, LineCoord, ColCoord1),
     nth0(SecondRowValueIndex, RowValues, Value2),
