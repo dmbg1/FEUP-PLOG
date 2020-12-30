@@ -2,8 +2,6 @@ solveBoard(Clues, SolutionMatrix) :-
     [RowClues, ColClues] = Clues,
     getSolutionValues(RowClues, RowValues),
     getSolutionValues(ColClues, ColValues),
-    write(RowValues), nl,
-    write(ColValues), nl,
     length(RowClues, Size),
     getSolutionMatrix([RowValues, ColValues], SolutionMatrix, Size)
 .
