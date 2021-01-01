@@ -2,6 +2,8 @@ solveBoard(Clues, SolutionMatrix) :-
     [RowClues, ColClues] = Clues,
     getSolutionValues(RowClues, RowValues),
     getSolutionValues(ColClues, ColValues),
+    append([RowValues, ColValues], Solution),
+    labeling([], Solution),
     length(RowClues, Size),
     getSolutionMatrix([RowValues, ColValues], SolutionMatrix, Size)
 .
@@ -12,12 +14,11 @@ getSolutionValues(Clues, Solution) :-
     length(Solution, MaxValue),
     domain(Solution, 1, MaxValue),
     all_distinct(Solution),
-    restrictions(Solution, Clues),
-    labeling([], Solution)
+    restrictions(Solution, Clues)
 .
 restrictions([], []).
 restrictions([X1, X2|Rest], [Clue|RestClues]) :-
-    (X1 * X2 #= Clue + 1 ; X1 * X2 #= Clue - 1),
+    ((X1 * X2) #= (Clue + 1)) #\ ((X1 * X2) #= (Clue - 1)),
     restrictions(Rest, RestClues)
 .
 

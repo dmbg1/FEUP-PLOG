@@ -5,10 +5,10 @@
 :- use_module(library(file_systems)).
 :- consult('display.pl').
 :- consult('solver.pl').
-:- consult('aux.pl').
+:- consult('auxiliar.pl').
 
 example([[2, 13, 29, 31],[3, 11, 23, 41]]).
-
+example1([[6,19,7],[2,9,25]]).
 
 main :-
     example(Board),
@@ -27,11 +27,10 @@ generateBoard(BoardSize) :-
     MaxClue is (BoardSize * 2 - 1) * (BoardSize * 2),
     domain(RowClues, 2, MaxClue),
     domain(ColClues, 2, MaxClue),
-    append(RowClues, ColClues, Clues),
+    append([RowClues, ColClues], Clues),
     all_distinct(Clues),
+    labeling([value(mySelValores)], Clues),
     solveBoard([RowClues, ColClues], _Solution),
-    labeling([], RowClues),
-    labeling([], ColClues),
     [RowClues, ColClues] = Board,
     write(Board), nl
 .
@@ -48,6 +47,5 @@ select_best_value(Set, BestValue):-
     fdset_to_list(Set, Lista),
     length(Lista, Len),
     random(0, Len, RandomIndex),
-    write(Len), nl,
     nth0(RandomIndex, Lista, BestValue).
 
