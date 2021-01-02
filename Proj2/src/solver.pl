@@ -1,11 +1,21 @@
-solveBoard(Clues, SolutionMatrix) :-
+solveBoard(Clues, SolutionMatrix) :-    
     [RowClues, ColClues] = Clues,
     getSolutionValues(RowClues, RowValues),
     getSolutionValues(ColClues, ColValues),
+    checkColValues(ColValues, RowValues),
     append([RowValues, ColValues], Solution),
     labeling([], Solution),
     length(RowClues, Size),
-    getSolutionMatrix([RowValues, ColValues], SolutionMatrix, Size)
+    getSolutionMatrix([RowValues, ColValues], SolutionMatrix, Size), !
+.
+
+checkColValues([],[]).
+checkColValues(_, []).
+checkColValues([], _).
+checkColValues([C1, C2|RestCols], [R1, R2|RestRows]) :-
+    (C1 #\= R1 #/\ C2 #\= R2) #\/ (C1 #\= R2 #/\ C2 #\= R1);
+    checkColValues([C1, C2|RestCols], RestRows),
+    checkColValues(RestCols, [R1, R2|RestRows])
 .
 
 getSolutionValues(Clues, Solution) :-

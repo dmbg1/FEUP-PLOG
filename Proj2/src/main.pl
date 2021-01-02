@@ -11,7 +11,7 @@ example([[2, 13, 29, 31],[3, 11, 23, 41]]).
 example1([[6,19,7],[2,9,25]]).
 
 main :-
-    example(Board),
+    example1(Board),
     solveBoard(Board, SolutionMatrix),
     getSolutionRowClues(SolutionMatrix, 1, 1, RClues),
     getSolutionColClues(SolutionMatrix, 1, 1, CClues),
@@ -29,8 +29,8 @@ generateBoard(BoardSize) :-
     domain(ColClues, 2, MaxClue),
     append([RowClues, ColClues], Clues),
     all_distinct(Clues),
-    labeling([value(mySelValores)], Clues),
     solveBoard([RowClues, ColClues], _Solution),
+    labeling([value(mySelValores)], Clues),
     [RowClues, ColClues] = Board,
     write(Board), nl
 .
