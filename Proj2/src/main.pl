@@ -11,7 +11,7 @@ example([[2, 13, 29, 31],[3, 11, 23, 41]]).
 example1([[6,19,7],[2,9,25]]).
 
 main :-
-    example1(Board),
+    example(Board),
     solveBoard(Board, SolutionMatrix),
     getSolutionRowClues(SolutionMatrix, 1, 1, RClues),
     getSolutionColClues(SolutionMatrix, 1, 1, CClues),
