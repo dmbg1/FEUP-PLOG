@@ -1,13 +1,11 @@
-solveBoard(Clues, SolutionMatrix) :-    
+solveBoard(Clues, Solution) :-    
     [RowClues, ColClues] = Clues,
     getSolutionValues(RowClues, RowValues),
     getSolutionValues(ColClues, ColValues),
     checkColValues(ColValues, RowValues),
-    checkMatrixMults(ColValues, RowValues, RowClues, ColClues),
-    append([RowValues, ColValues], Solution),
-    labeling([], Solution),
-    length(RowClues, Size),
-    getSolutionMatrix([RowValues, ColValues], SolutionMatrix, Size), !
+    append([RowValues, ColValues], Solution1),
+    labeling([], Solution1),
+    Solution = [RowValues, ColValues] % Better format to get solution matrix
 .
 
 checkColValues([],[]).
@@ -17,12 +15,6 @@ checkColValues([C1, C2|RestCols], [R1, R2|RestRows]) :-
     ((C1 #\= R1 #\/ C2 #\= R2) #/\ (C1 #\= R2 #\/ C2 #\= R1)),
     checkColValues([C1, C2|RestCols], RestRows),
     checkColValues(RestCols, [R1, R2|RestRows])
-.
-
-checkMatrixMults([], [], [], []).
-checkMatrixMults([C1, C2|RestCols], [R1, R2|RestRows], [RowClue|RestR], [ColClue|RestC]) :-
-    (((C1 * C2 #= ColClue + 1) #\/ (C1 * C2 #= ColClue - 1)) #/\ ((R1 * R2 #= RowClue + 1) #\/ (R1 * R2 #= RowClue - 1))),
-    checkMatrixMults(RestCols, RestRows, RestR, RestC)
 .
 
 getSolutionValues(Clues, Solution) :-
@@ -40,10 +32,8 @@ restrictions([X1, X2|Rest], [Clue|RestClues]) :-
 .
 
 getSolutionMatrix(Solution, SolutionMatrix, Size) :-
-    length(EmptyMatrix, Size),
-    maplist(same_length(EmptyMatrix), EmptyMatrix),
-    emptyMatrix(EmptyMatrix, Size),
-    fillWithSolution(EmptyMatrix, Solution, 1, SolutionMatrix)
+    getEmptyMatrix(EmptyMatrix, Size),
+    fillWithSolution(EmptyMatrix, Solution, 1, SolutionMatrix), !
 .
 fillWithSolution(Matrix, Solution, SecondRowValueIndex, FinalMatrix) :- 
     [RowValues, ColValues] = Solution,
@@ -64,40 +54,9 @@ fillWithSolution(Matrix, Solution, SecondRowValueIndex, FinalMatrix) :-
 .
 fillWithSolution(FinalMatrix, _, _, FinalMatrix).
 
-getSolutionColClues([], _Index, Accum, [Accum|_RestClues]).
-getSolutionColClues(Solution, Index, Accum, ColClues) :-
-    [Clue|RestClues] = ColClues,
-    [Row|RestRows] = Solution,
-    length(Row, Size),
-    Index =< Size,
-    nth1(Index, Row, Value),
-    ((Value = 0,
-     getSolutionColClues(RestRows, Index, Accum, [Clue|_]));
-     (Value \= 0, 
-     Accum1 is Accum * Value, 
-     getSolutionColClues(RestRows, Index, Accum1, [Clue|_]))),
-     length(RestRows, RowsLeft),
-     ((Size is RowsLeft + 1,
-       Index1 is Index + 1,
-       getSolutionColClues(Solution, Index1, 1, RestClues)
-       );
-       true)
+getSolutionClues([],[], [], []).
+getSolutionClues([R1, R2|RestRValues], [SolRowClue|RestSolRowClues], [C1, C2|RestCValues], [SolColClue|RestSolColClue]) :-
+    SolRowClue is R1 * R2, 
+    SolColClue is C1 * C2, 
+    getSolutionClues(RestRValues, RestSolRowClues, RestCValues, RestSolColClue)
 .
-getSolutionColClues(_, _, _, []).
-
-getSolutionRowClues([], _Index, _Accum, []).
-getSolutionRowClues(Solution, Index, Accum, RowClues) :-
-    [Clue|RestClues] = RowClues,
-    [Row|RestRows] = Solution,
-    length(Row, Size),
-    Index =< Size,
-    nth1(Index, Row, Value),
-    Index1 is Index + 1,
-    ((Value = 0,
-     getSolutionRowClues(Solution, Index1, Accum, [Clue|_]));
-     (Value \= 0,
-     Accum1 is Accum * Value, 
-     getSolutionRowClues(Solution, Index1, Accum1, [Clue|_]))),
-    getSolutionRowClues(RestRows, 1, 1, RestClues)
-.
-getSolutionRowClues(_, _Index, Accum, [Accum|_RestClues]).
