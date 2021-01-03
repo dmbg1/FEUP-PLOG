@@ -25,4 +25,3 @@ select_best_value(Set, BestValue):-
     length(Lista, Len),
     random(0, Len, RandomIndex),
     nth0(RandomIndex, Lista, BestValue).
-

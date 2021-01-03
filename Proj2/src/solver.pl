@@ -3,9 +3,8 @@ solveBoard(Clues, Solution) :-
     getSolutionValues(RowClues, RowValues),
     getSolutionValues(ColClues, ColValues),
     checkColValues(ColValues, RowValues),
-    checkMatrixMults(ColValues, RowValues, RowClues, ColClues),
     append([RowValues, ColValues], Solution1),
-    labeling([], Solution1), !,
+    labeling([], Solution1),
     Solution = [RowValues, ColValues] % Better format to get solution matrix
 .
 
@@ -16,12 +15,6 @@ checkColValues([C1, C2|RestCols], [R1, R2|RestRows]) :-
     ((C1 #\= R1 #\/ C2 #\= R2) #/\ (C1 #\= R2 #\/ C2 #\= R1)),
     checkColValues([C1, C2|RestCols], RestRows),
     checkColValues(RestCols, [R1, R2|RestRows])
-.
-
-checkMatrixMults([], [], [], []).
-checkMatrixMults([C1, C2|RestCols], [R1, R2|RestRows], [RowClue|RestR], [ColClue|RestC]) :-
-    (((C1 * C2 #= ColClue + 1) #\/ (C1 * C2 #= ColClue - 1)) #/\ ((R1 * R2 #= RowClue + 1) #\/ (R1 * R2 #= RowClue - 1))),
-    checkMatrixMults(RestCols, RestRows, RestR, RestC)
 .
 
 getSolutionValues(Clues, Solution) :-
