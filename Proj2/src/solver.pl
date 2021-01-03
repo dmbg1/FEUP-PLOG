@@ -1,13 +1,12 @@
-solveBoard(Clues, SolutionMatrix) :-    
+solveBoard(Clues, Solution) :-    
     [RowClues, ColClues] = Clues,
     getSolutionValues(RowClues, RowValues),
     getSolutionValues(ColClues, ColValues),
     checkColValues(ColValues, RowValues),
     checkMatrixMults(ColValues, RowValues, RowClues, ColClues),
-    append([RowValues, ColValues], Solution),
-    labeling([], Solution),
-    length(RowClues, Size),
-    getSolutionMatrix([RowValues, ColValues], SolutionMatrix, Size), !
+    append([RowValues, ColValues], Solution1),
+    labeling([], Solution1), !,
+    Solution = [RowValues, ColValues] % Better format to get solution matrix
 .
 
 checkColValues([],[]).
@@ -42,8 +41,8 @@ restrictions([X1, X2|Rest], [Clue|RestClues]) :-
 getSolutionMatrix(Solution, SolutionMatrix, Size) :-
     length(EmptyMatrix, Size),
     maplist(same_length(EmptyMatrix), EmptyMatrix),
-    emptyMatrix(EmptyMatrix, Size),
-    fillWithSolution(EmptyMatrix, Solution, 1, SolutionMatrix)
+    emptyMatrix(EmptyMatrix, Size), 
+    fillWithSolution(EmptyMatrix, Solution, 1, SolutionMatrix), !
 .
 fillWithSolution(Matrix, Solution, SecondRowValueIndex, FinalMatrix) :- 
     [RowValues, ColValues] = Solution,
