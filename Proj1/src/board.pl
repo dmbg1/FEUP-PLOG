@@ -102,7 +102,7 @@ countPurpleOnEdge(Coords, Nr, Length) :-
 	countPurpleOnEdge(Rest, NrRest, Len),
 	Length is Len + 1,
 	parseCoord(Coord, Y, X),
-	((Y = X, Nr is NrRest + 2);
+	((Y = X, Nr is NrRest + 1);
 	(Y \= X, Nr is NrRest))
 .
 countWhiteOnEdge([], 0, 0).
@@ -111,16 +111,16 @@ countWhiteOnEdge(Coords, Nr, Length) :-
 	countWhiteOnEdge(Rest, NrRest, Len),
 	Length is Len + 1,
 	parseCoord(Coord, _, X),
-	((X = 0, Nr is NrRest + 2);
+	((X = 0, Nr is NrRest + 1);
 	(X \= 0, Nr is NrRest))
 .
-countGreenOnEdge([], 0, -1).
+countGreenOnEdge([], 0, 0).
 countGreenOnEdge(Coords, Nr, Length) :-
 	[Coord | Rest] = Coords,
 	countGreenOnEdge(Rest, NrRest, Len),
 	Length is Len + 1,
 	parseCoord(Coord, Y, _),
-	((Y = 9, Nr is NrRest + 2);
+	((Y = 9, Nr is NrRest + 1);
 	(Y \= 9, Nr is NrRest))
 .
 

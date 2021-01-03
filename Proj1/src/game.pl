@@ -260,7 +260,7 @@ gameLoop(GameOld, Mode, BetweenTurns, Difficulty) :-
 	(BetweenTurns \= 0, display_game(GameOld); true),
     gameTurn(GameOld, GameNew, Mode, Difficulty),
     (
-        (game_over(GameNew, Winner), (BetweenTurns = 0, display_game(GameOld); true), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]), sleep(10));
+        (game_over(GameNew, Winner), (BetweenTurns = 0, display_game(GameNew); true), winnerToWords(Winner, WinnerStr), format('The Winner is: ~w!~n', [WinnerStr]), sleep(10));
         (((Mode = botAgainstBot, sleep(BetweenTurns)); (true)), cls,
 			gameLoop(GameNew, Mode, BetweenTurns, Difficulty))
     )
