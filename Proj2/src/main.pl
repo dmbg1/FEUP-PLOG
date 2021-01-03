@@ -19,8 +19,8 @@ main :-
     Board = [RowClues, _ColClues],
     length(RowClues, Size),
     getSolutionMatrix(Solution, SolutionMatrix, Size),
-    getSolutionRowClues(SolutionMatrix, 1, 1, RClues),
-    getSolutionColClues(SolutionMatrix, 1, 1, CClues),
+    [RowValues, ColValues] = Solution,
+    getSolutionClues(RowValues, RClues, ColValues, CClues),
     [RClues, CClues] = Clues,
     print_problem_matrix(SolutionMatrix, Size, Clues)
 .
