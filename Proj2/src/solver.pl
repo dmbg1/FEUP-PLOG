@@ -39,9 +39,7 @@ restrictions([X1, X2|Rest], [Clue|RestClues]) :-
 .
 
 getSolutionMatrix(Solution, SolutionMatrix, Size) :-
-    length(EmptyMatrix, Size),
-    maplist(same_length(EmptyMatrix), EmptyMatrix),
-    emptyMatrix(EmptyMatrix, Size), 
+    getEmptyMatrix(EmptyMatrix, Size),
     fillWithSolution(EmptyMatrix, Solution, 1, SolutionMatrix), !
 .
 fillWithSolution(Matrix, Solution, SecondRowValueIndex, FinalMatrix) :- 

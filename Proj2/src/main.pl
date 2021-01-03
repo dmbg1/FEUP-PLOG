@@ -13,11 +13,13 @@ example1([[6,19,7],[2,9,25]]).
 
 main :-
     example(Board),
-    solveBoard(Board, Solution),
-    write('Found a Solution with the following stats:'), nl,
-    fd_statistics, nl,
-    Board = [RowClues, _ColClues],
+    [RowClues, _ColClues] = Board,
     length(RowClues, Size),
+    getEmptyMatrix(BeforeSolution, Size),
+    print_problem_matrix(BeforeSolution, Size, Board),
+    solveBoard(Board, Solution),
+    write('Found a solution with the following stats:'), nl,
+    fd_statistics, nl,
     getSolutionMatrix(Solution, SolutionMatrix, Size),
     [RowValues, ColValues] = Solution,
     getSolutionClues(RowValues, RClues, ColValues, CClues),

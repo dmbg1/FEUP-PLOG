@@ -1,6 +1,11 @@
 translate(0, ' ').
 translate(N, N).
 
+getEmptyMatrix(M, Size) :-
+    length(M, Size),
+    maplist(same_length(M), M),
+    emptyMatrix(M, Size)
+.
 emptyMatrix([], _).
 emptyMatrix([Row|RestMatrix], Size) :-
     emptyRow(Row),
