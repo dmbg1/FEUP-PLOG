@@ -1,4 +1,4 @@
-generateBoard(BoardSize) :-
+generateBoard(BoardSize, Board) :-
     length(Board, 2),
     length(RowClues, BoardSize),
     length(ColClues, BoardSize),
@@ -9,8 +9,7 @@ generateBoard(BoardSize) :-
     all_distinct(Clues),
     solveBoard([RowClues, ColClues], _Solution),
     labeling([value(mySelValores)], Clues),
-    [RowClues, ColClues] = Board,
-    write(Board), nl
+    [RowClues, ColClues] = Board
 .
 mySelValores(Var, _Rest, BB, BB1) :-
     fd_set(Var, Set),
