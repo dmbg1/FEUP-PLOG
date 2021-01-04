@@ -14,9 +14,8 @@ example4x4([[2, 13, 29, 31],[3, 11, 23, 41]]).
 example6x6([[9, 4, 49, 76, 91, 49], [15, 11, 14, 73, 100, 33]]).
 example8x8([[3, 29, 73, 13, 43, 109, 157, 241],[12, 145, 81, 43, 57,46]]).
 
-solveExampleBoard :-
+solveExampleBoard(Board) :-
     fd_statistics, cls,
-    example4x4(Board),
     [RowClues, _ColClues] = Board,
     length(RowClues, Size),
     getEmptyMatrix(BeforeSolution, Size),
@@ -69,10 +68,15 @@ solveGeneratedBoard(Size, RandomOrFirstBoard) :-
 main :-
     format('    ------------------~n    | WRONG PRODUCTS |~n    ------------------~n', []),
     format('       Choose an option:~n', []),
-    format('1 - Solve Example Board~n', []),
-    format('2 - Generate and Solve a board~n', []),
-    format('3 - Generate and Solve a random board with 2 labelings~n', []),
-    format('4 - Generate and Solve a random board with 1 labeling~n', []),
+    format('1 - Solve Example 2x2 Board~n', []),
+    format('2 - Solve Example 3x3 Board~n', []),
+    format('3 - Solve Example 4x4 Board~n', []),
+    format('4 - Solve Example 6x6 Board~n', []),
+    format('5 - Solve Example 8x8 Board~n', []),
+    format('6 - Solve Example 10x10 Board~n', []),
+    format('7 - Generate and Solve a board~n', []),
+    format('8 - Generate and Solve a random board with 2 labelings~n', []),
+    format('9 - Generate and Solve a random board with 1 labeling~n', []),
     format('0 - Exit~n', []),
     read(Input),
     manageInput(Input)
@@ -83,15 +87,76 @@ manageInput(0).
 manageInput(1) :- 
     cls,
     nl, 
-    solveExampleBoard, !,
+    example2x2(Board),
+    solveExampleBoard(Board), !,
     format('Press enter to continue...',[]),
     get_char(_),
     get_char(_),
-    
-    cls,
+    cls,!,
 	main
 .
-manageInput(2) :-
+
+manageInput(2) :- 
+    cls,
+    nl, 
+    example3x3(Board),
+    solveExampleBoard(Board), !,
+    format('Press enter to continue...',[]),
+    get_char(_),
+    get_char(_),
+    cls,!,
+	main
+.
+
+manageInput(3) :- 
+    cls,
+    nl, 
+    example4x4(Board),
+    solveExampleBoard(Board), !,
+    format('Press enter to continue...',[]),
+    get_char(_),
+    get_char(_),
+    cls,!,
+	main
+.
+
+manageInput(4) :- 
+    cls,
+    nl, 
+    example6x6(Board),
+    solveExampleBoard(Board), !,
+    format('Press enter to continue...',[]),
+    get_char(_),
+    get_char(_),
+    cls,!,
+	main
+.
+
+manageInput(5) :- 
+    cls,
+    nl, 
+    example8x8(Board),
+    solveExampleBoard(Board), !,
+    format('Press enter to continue...',[]),
+    get_char(_),
+    get_char(_),
+    cls,!,
+	main
+.
+
+manageInput(6) :- 
+    cls,
+    nl, 
+    example10x10(Board),
+    solveExampleBoard(Board), !,
+    format('Press enter to continue...',[]),
+    get_char(_),
+    get_char(_),
+    cls,!,
+	main
+.
+
+manageInput(7) :-
     format('Enter the size of side of the board: ',[]),
     read(Size),
     (
@@ -107,12 +172,12 @@ manageInput(2) :-
         )
         ;
         (
-            manageInput(2), !
+            manageInput(7), !
         )
     )
 .
 
-manageInput(3) :-
+manageInput(8) :-
     format('Enter the size of side of the board: ',[]),
     read(Size),
     (
@@ -128,12 +193,12 @@ manageInput(3) :-
         )
         ;
         (
-            manageInput(2), !
+            manageInput(8), !
         )
     )
 .
 
-manageInput(4) :-
+manageInput(9) :-
     format('Enter the size of side of the board: ',[]),
     read(Size),
     (
@@ -149,7 +214,7 @@ manageInput(4) :-
         )
         ;
         (
-            manageInput(2), !
+            manageInput(9), !
         )
     )
 .
