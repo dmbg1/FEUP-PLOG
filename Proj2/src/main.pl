@@ -17,9 +17,16 @@ solveExampleBoard :-
     length(RowClues, Size),
     getEmptyMatrix(BeforeSolution, Size),
     print_problem_matrix(BeforeSolution, Size, Board),
+
+    statistics(runtime, [StartSolveTime | _]),
     solveBoard(Board, Solution),
+    statistics(runtime, [EndSolveTime | _]),
+    SolveTime is EndSolveTime - StartSolveTime,
+    
     write('Found a solution with the following stats:'), nl,
-    fd_statistics, nl,
+    fd_statistics, 
+    format('Solving CPU Time: ~w ms~n~n', [SolveTime]),
+    
     getSolutionMatrix(Solution, SolutionMatrix, Size),
     [RowValues, ColValues] = Solution,
     getSolutionClues(RowValues, RClues, ColValues, CClues),
@@ -28,14 +35,25 @@ solveExampleBoard :-
 .
 
 solveGeneratedBoard(Size) :-
+    statistics(runtime, [StartGenerateTime | _]),
     generateBoard(Size, Board),
+    statistics(runtime, [EndGenerateTime | _]),
+    GenerateTime is EndGenerateTime - StartGenerateTime,
+
     [RowClues, _ColClues] = Board,
     length(RowClues, Size),
     getEmptyMatrix(BeforeSolution, Size),
     print_problem_matrix(BeforeSolution, Size, Board),
+
+    statistics(runtime, [StartSolveTime | _]),
     solveBoard(Board, Solution),
+    statistics(runtime, [EndSolveTime | _]),
+    SolveTime is EndSolveTime - StartSolveTime,
+
     write('Found a solution with the following stats:'), nl,
-    fd_statistics, nl,
+    fd_statistics,
+    format('Generating CPU Time: ~w ms~nSolving CPU Time: ~w ms~n~n', [GenerateTime, SolveTime]),
+
     getSolutionMatrix(Solution, SolutionMatrix, Size),
     [RowValues, ColValues] = Solution,
     getSolutionClues(RowValues, RClues, ColValues, CClues),
