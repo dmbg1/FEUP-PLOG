@@ -8,11 +8,14 @@
 :- consult('auxiliar.pl').
 :- consult('generator.pl').
 
-example([[2, 13, 29, 31],[3, 11, 23, 41]]).
-example1([[6,19,7],[2,9,25]]).
+example2x2([[7, 2], [3, 11]]).
+example3x3([[6,19,7],[2,9,25]]).
+example4x4([[2, 13, 29, 31],[3, 11, 23, 41]]).
+example6x6([[9, 4, 49, 76, 91, 49], [15, 11, 14, 73, 100, 33]]).
+example8x8([[3, 29, 73, 13, 43, 109, 157, 241],[12, 145, 81, 43, 57,46]]).
 
 solveExampleBoard :-
-    example(Board),
+    example4x4(Board),
     [RowClues, _ColClues] = Board,
     length(RowClues, Size),
     getEmptyMatrix(BeforeSolution, Size),
