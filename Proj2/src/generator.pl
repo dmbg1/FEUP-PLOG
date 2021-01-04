@@ -1,3 +1,4 @@
+% Gera uma board utilizando um só labelling com ffc
 generateBoard(BoardSize, Board, firstBoard) :-
     length(Board, 2),
     length(RowClues, BoardSize),
@@ -13,6 +14,7 @@ generateBoard(BoardSize, Board, firstBoard) :-
     [RowClues, ColClues] = Board
 .
 
+% Gera uma board aleatória utilizando dois labellings 
 generateBoard(BoardSize, Board, randomLabeling) :-
     length(Board, 2),
     length(RowClues, BoardSize),
@@ -29,6 +31,7 @@ generateBoard(BoardSize, Board, randomLabeling) :-
     [RowClues, ColClues] = Board
 .
 
+% Gera uma board aleatória utilizando um só labelling
 generateBoard(BoardSize, Board, randomNoLabeling) :-
     length(Board, 2),
     length(RowClues, BoardSize),
@@ -46,6 +49,7 @@ generateBoard(BoardSize, Board, randomNoLabeling) :-
     [RowClues, ColClues] = Board
 .
 
+% Predicado utilizado para obter valores aleatórios nos labellings das gerações aleatórias
 mySelValores(Var, _Rest, BB, BB1) :-
     fd_set(Var, Set),
     select_best_value(Set, Value),

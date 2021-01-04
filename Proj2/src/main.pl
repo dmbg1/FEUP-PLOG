@@ -15,6 +15,7 @@ example6x6([[9, 4, 49, 76, 91, 49], [15, 11, 14, 73, 100, 33]]).
 example8x8([[3, 29, 73, 13, 43, 109, 157, 241],[12, 145, 81, 43, 57, 46, 27, 61]]).
 example10x10([[7, 29, 64, 33, 183, 271, 109, 299, 11, 341], [7, 79, 49, 154, 23, 209, 78, 17, 227, 319]]).
 
+% Predicado utilizado para a resolução de uma das boards example
 solveExampleBoard(Board) :-
     fd_statistics, cls,
     [RowClues, _ColClues] = Board,
@@ -38,6 +39,7 @@ solveExampleBoard(Board) :-
     print_problem_matrix(SolutionMatrix, Size, Clues)
 .
 
+% Resolve uma Board gerada
 solveGeneratedBoard(Size, RandomOrFirstBoard) :-
     fd_statistics, cls,
     statistics(runtime, [StartGenerateTime | _]),
@@ -65,6 +67,7 @@ solveGeneratedBoard(Size, RandomOrFirstBoard) :-
     print_problem_matrix(SolutionMatrix, Size, Clues)
 .
 
+% Menu
 main :-
     format('    ------------------~n    | WRONG PRODUCTS |~n    ------------------~n', []),
     format('       Choose an option:~n', []),

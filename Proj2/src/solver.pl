@@ -1,3 +1,4 @@
+% Resolve a Board com as Clues passadas no primeiro argumento
 solveBoard(Clues, Solution) :-    
     [RowClues, ColClues] = Clues,
     getSolutionValues(RowClues, RowValues),
@@ -5,17 +6,19 @@ solveBoard(Clues, Solution) :-
     checkColValues(ColValues, RowValues),
     append([RowValues, ColValues], Solution1),
     labeling([ffc], Solution1),
-    Solution = [RowValues, ColValues] % Better format to get solution matrix
+    Solution = [RowValues, ColValues] 
 .
 
+% Resolve a Board com as Clues passadas no primeiro argumento sem o labelling
 solveBoardNoLabeling(Clues, Solution) :-    
     [RowClues, ColClues] = Clues,
     getSolutionValues(RowClues, RowValues),
     getSolutionValues(ColClues, ColValues),
     checkColValues(ColValues, RowValues),
-    Solution = [RowValues, ColValues] % Better format to get solution matrix
+    Solution = [RowValues, ColValues]
 .
 
+% Aplica a restrições que não permitem que uma coluna tenha os mesmos 2 valores que uma linha 
 checkColValues([],[]).
 checkColValues(_, []).
 checkColValues([], _).
@@ -25,6 +28,7 @@ checkColValues([C1, C2|RestCols], [R1, R2|RestRows]) :-
     checkColValues(RestCols, [R1, R2|RestRows])
 .
 
+% Aplica a restrição em que a multiplicação dos elementos de cada coluna ou linha tem de dar +1 ou -1 que a Clue respetiva na Board a resolver 
 getSolutionValues(Clues, Solution) :-
     length(Clues, GridSize),
     MaxValue is GridSize * 2,
@@ -39,6 +43,7 @@ restrictions([X1, X2|Rest], [Clue|RestClues]) :-
     restrictions(Rest, RestClues)
 .
 
+% Transforma a solução no formato de uma matriz Size x Size
 getSolutionMatrix(Solution, SolutionMatrix, Size) :-
     getEmptyMatrix(EmptyMatrix, Size),
     fillWithSolution(EmptyMatrix, Solution, 1, SolutionMatrix), !
@@ -62,6 +67,7 @@ fillWithSolution(Matrix, Solution, SecondRowValueIndex, FinalMatrix) :-
 .
 fillWithSolution(FinalMatrix, _, _, FinalMatrix).
 
+% Obtém as Clues resultantes da multiplicação dos valores de cada linha ou coluna de uma solução
 getSolutionClues([],[], [], []).
 getSolutionClues([R1, R2|RestRValues], [SolRowClue|RestSolRowClues], [C1, C2|RestCValues], [SolColClue|RestSolColClue]) :-
     SolRowClue is R1 * R2, 
