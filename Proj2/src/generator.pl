@@ -13,7 +13,7 @@ generateBoard(BoardSize, Board, firstBoard) :-
     [RowClues, ColClues] = Board
 .
 
-generateBoard(BoardSize, Board, random) :-
+generateBoard(BoardSize, Board, randomLabeling) :-
     length(Board, 2),
     length(RowClues, BoardSize),
     length(ColClues, BoardSize),
@@ -22,12 +22,27 @@ generateBoard(BoardSize, Board, random) :-
     domain(ColClues, 2, MaxClue),
     append([RowClues, ColClues], Clues),
     all_distinct(Clues),
+    
+    solveBoard([RowClues, ColClues], _Solution), !,
+    labeling([value(mySelValores)], Clues), !,
+
+    [RowClues, ColClues] = Board
+.
+
+generateBoard(BoardSize, Board, randomNoLabeling) :-
+    length(Board, 2),
+    length(RowClues, BoardSize),
+    length(ColClues, BoardSize),
+    MaxClue is (BoardSize * 2 - 1) * (BoardSize * 2),
+    domain(RowClues, 2, MaxClue),
+    domain(ColClues, 2, MaxClue),
+    append([RowClues, ColClues], Clues),
+    all_distinct(Clues),
+    
     solveBoardNoLabeling([RowClues, ColClues], [RowValues, ColValues]), !,
     append([Clues, RowValues, ColValues], Vars),
-    labeling([value(mySelValores)], Vars), !,
-    
-    %solveBoard([RowClues, ColClues], [RowValues, ColValues]), !,
-    %labeling([value(mySelValores)], Clues), !,
+    labeling([value(mySelValores)], Vars), 
+
     [RowClues, ColClues] = Board
 .
 

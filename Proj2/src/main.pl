@@ -16,7 +16,7 @@ example8x8([[3, 29, 73, 13, 43, 109, 157, 241],[12, 145, 81, 43, 57, 46, 27, 61]
 example10x10([[7, 29, 64, 33, 183, 271, 109, 299, 11, 341], [7, 79, 49, 154, 23, 209, 78, 17, 227, 319]]).
 
 solveExampleBoard :-
-    example10x10(Board),
+    example4x4(Board),
     [RowClues, _ColClues] = Board,
     length(RowClues, Size),
     getEmptyMatrix(BeforeSolution, Size),
@@ -39,6 +39,7 @@ solveExampleBoard :-
 .
 
 solveGeneratedBoard(Size, RandomOrFirstBoard) :-
+    fd_statistics, cls,
     statistics(runtime, [StartGenerateTime | _]),
     generateBoard(Size, Board, RandomOrFirstBoard),
     statistics(runtime, [EndGenerateTime | _]),
@@ -69,7 +70,8 @@ main :-
     format('       Choose an option:~n', []),
     format('1 - Solve Example Board~n', []),
     format('2 - Generate and Solve a board~n', []),
-    format('3 - Generate and Solve a random board~n', []),
+    format('3 - Generate and Solve a random board with 2 labelings~n', []),
+    format('4 - Generate and Solve a random board with 1 labeling~n', []),
     format('0 - Exit~n', []),
     read(Input),
     manageInput(Input)
@@ -79,6 +81,7 @@ manageInput(0).
 
 manageInput(1) :- 
     cls,
+    nl, 
     solveExampleBoard, !,
     format('Press enter to continue...',[]),
     get_char(_),
@@ -93,7 +96,7 @@ manageInput(2) :-
     (
         (
             number(Size), !,
-            cls,
+            cls, nl,
             solveGeneratedBoard(Size, firstBoard), !,
             format('Press enter to continue...',[]),
             get_char(_),
@@ -114,8 +117,8 @@ manageInput(3) :-
     (
         (
             number(Size), !,
-            cls,
-            solveGeneratedBoard(Size, random), !,
+            cls, nl, 
+            solveGeneratedBoard(Size, randomLabeling), !,
             format('Press enter to continue...',[]),
             get_char(_),
             get_char(_),
@@ -129,4 +132,25 @@ manageInput(3) :-
     )
 .
 
-manageInput(4):- main, !.
+manageInput(4) :-
+    format('Enter the size of side of the board: ',[]),
+    read(Size),
+    (
+        (
+            number(Size), !,
+            cls, nl, 
+            solveGeneratedBoard(Size, randomNoLabeling), !,
+            format('Press enter to continue...',[]),
+            get_char(_),
+            get_char(_),
+            cls,
+            main
+        )
+        ;
+        (
+            manageInput(2), !
+        )
+    )
+.
+
+manageInput(_):- main, !.
