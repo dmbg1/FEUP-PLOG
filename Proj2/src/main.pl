@@ -12,10 +12,11 @@ example2x2([[7, 2], [3, 11]]).
 example3x3([[6,19,7],[2,9,25]]).
 example4x4([[2, 13, 29, 31],[3, 11, 23, 41]]).
 example6x6([[9, 4, 49, 76, 91, 49], [15, 11, 14, 73, 100, 33]]).
-example8x8([[3, 29, 73, 13, 43, 109, 157, 241],[12, 145, 81, 43, 57,46]]).
+example8x8([[3, 29, 73, 13, 43, 109, 157, 241],[12, 145, 81, 43, 57, 46, 27, 61]]).
+example10x10([[7, 29, 64, 33, 183, 271, 109, 299, 11, 341], [7, 79, 49, 154, 23, 209, 78, 17, 227, 319]]).
 
 solveExampleBoard :-
-    example4x4(Board),
+    example10x10(Board),
     [RowClues, _ColClues] = Board,
     length(RowClues, Size),
     getEmptyMatrix(BeforeSolution, Size),
@@ -42,7 +43,6 @@ solveGeneratedBoard(Size, RandomOrFirstBoard) :-
     generateBoard(Size, Board, RandomOrFirstBoard),
     statistics(runtime, [EndGenerateTime | _]),
     GenerateTime is EndGenerateTime - StartGenerateTime,
-
     [RowClues, _ColClues] = Board,
     length(RowClues, Size),
     getEmptyMatrix(BeforeSolution, Size),
