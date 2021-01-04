@@ -12,6 +12,7 @@ example([[2, 13, 29, 31],[3, 11, 23, 41]]).
 example1([[6,19,7],[2,9,25]]).
 
 solveExampleBoard :-
+    fd_statistics, cls,
     example(Board),
     [RowClues, _ColClues] = Board,
     length(RowClues, Size),
@@ -35,6 +36,7 @@ solveExampleBoard :-
 .
 
 solveGeneratedBoard(Size, RandomOrFirstBoard) :-
+    fd_statistics, cls,
     statistics(runtime, [StartGenerateTime | _]),
     generateBoard(Size, Board, RandomOrFirstBoard),
     statistics(runtime, [EndGenerateTime | _]),
@@ -66,7 +68,8 @@ main :-
     format('       Choose an option:~n', []),
     format('1 - Solve Example Board~n', []),
     format('2 - Generate and Solve a board~n', []),
-    format('3 - Generate and Solve a random board~n', []),
+    format('3 - Generate and Solve a random board with 2 labelings~n', []),
+    format('4 - Generate and Solve a random board with 1 labeling~n', []),
     format('0 - Exit~n', []),
     read(Input),
     manageInput(Input)
@@ -76,6 +79,7 @@ manageInput(0).
 
 manageInput(1) :- 
     cls,
+    nl, 
     solveExampleBoard, !,
     format('Press enter to continue...',[]),
     get_char(_),
@@ -90,7 +94,7 @@ manageInput(2) :-
     (
         (
             number(Size), !,
-            cls,
+            cls, nl,
             solveGeneratedBoard(Size, firstBoard), !,
             format('Press enter to continue...',[]),
             get_char(_),
@@ -111,8 +115,8 @@ manageInput(3) :-
     (
         (
             number(Size), !,
-            cls,
-            solveGeneratedBoard(Size, random), !,
+            cls, nl, 
+            solveGeneratedBoard(Size, randomLabeling), !,
             format('Press enter to continue...',[]),
             get_char(_),
             get_char(_),
@@ -126,4 +130,25 @@ manageInput(3) :-
     )
 .
 
-manageInput(4):- main, !.
+manageInput(4) :-
+    format('Enter the size of side of the board: ',[]),
+    read(Size),
+    (
+        (
+            number(Size), !,
+            cls, nl, 
+            solveGeneratedBoard(Size, randomNoLabeling), !,
+            format('Press enter to continue...',[]),
+            get_char(_),
+            get_char(_),
+            cls,
+            main
+        )
+        ;
+        (
+            manageInput(2), !
+        )
+    )
+.
+
+manageInput(_):- main, !.
