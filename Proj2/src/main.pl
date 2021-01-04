@@ -34,9 +34,9 @@ solveExampleBoard :-
     print_problem_matrix(SolutionMatrix, Size, Clues)
 .
 
-solveGeneratedBoard(Size) :-
+solveGeneratedBoard(Size, RandomOrFirstBoard) :-
     statistics(runtime, [StartGenerateTime | _]),
-    generateBoard(Size, Board),
+    generateBoard(Size, Board, RandomOrFirstBoard),
     statistics(runtime, [EndGenerateTime | _]),
     GenerateTime is EndGenerateTime - StartGenerateTime,
 
@@ -60,3 +60,70 @@ solveGeneratedBoard(Size) :-
     [RClues, CClues] = Clues,
     print_problem_matrix(SolutionMatrix, Size, Clues)
 .
+
+main :-
+    format('    ------------------~n    | WRONG PRODUCTS |~n    ------------------~n', []),
+    format('       Choose an option:~n', []),
+    format('1 - Solve Example Board~n', []),
+    format('2 - Generate and Solve a board~n', []),
+    format('3 - Generate and Solve a random board~n', []),
+    format('0 - Exit~n', []),
+    read(Input),
+    manageInput(Input)
+.
+
+manageInput(0).
+
+manageInput(1) :- 
+    cls,
+    solveExampleBoard, !,
+    format('Press enter to continue...',[]),
+    get_char(_),
+    get_char(_),
+    
+    cls,
+	main
+.
+manageInput(2) :-
+    format('Enter the size of side of the board: ',[]),
+    read(Size),
+    (
+        (
+            number(Size), !,
+            cls,
+            solveGeneratedBoard(Size, firstBoard), !,
+            format('Press enter to continue...',[]),
+            get_char(_),
+            get_char(_),
+            cls,
+            main
+        )
+        ;
+        (
+            manageInput(2), !
+        )
+    )
+.
+
+manageInput(3) :-
+    format('Enter the size of side of the board: ',[]),
+    read(Size),
+    (
+        (
+            number(Size), !,
+            cls,
+            solveGeneratedBoard(Size, random), !,
+            format('Press enter to continue...',[]),
+            get_char(_),
+            get_char(_),
+            cls,
+            main
+        )
+        ;
+        (
+            manageInput(2), !
+        )
+    )
+.
+
+manageInput(4):- main, !.

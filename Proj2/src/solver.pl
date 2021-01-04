@@ -4,7 +4,15 @@ solveBoard(Clues, Solution) :-
     getSolutionValues(ColClues, ColValues),
     checkColValues(ColValues, RowValues),
     append([RowValues, ColValues], Solution1),
-    labeling([], Solution1),
+    labeling([ffc], Solution1),
+    Solution = [RowValues, ColValues] % Better format to get solution matrix
+.
+
+solveBoardNoLabeling(Clues, Solution) :-    
+    [RowClues, ColClues] = Clues,
+    getSolutionValues(RowClues, RowValues),
+    getSolutionValues(ColClues, ColValues),
+    checkColValues(ColValues, RowValues),
     Solution = [RowValues, ColValues] % Better format to get solution matrix
 .
 

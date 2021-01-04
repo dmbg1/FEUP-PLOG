@@ -20,3 +20,9 @@ setValue(Value, OldBoard, NewBoard, Y, X) :-
 	nth0(X, NewRow, Value, TmpRow),
 	nth0(Y, NewBoard, NewRow, TmpBoard)
 .
+
+
+% Clear Screen
+cls :- 
+	write('\33\[2J')
+.
