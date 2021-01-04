@@ -67,7 +67,7 @@ solveGeneratedBoard(Size, RandomOrFirstBoard) :-
     print_problem_matrix(SolutionMatrix, Size, Clues)
 .
 
-% Menu
+% Main Menu
 main :-
     format('    ------------------~n    | WRONG PRODUCTS |~n    ------------------~n', []),
     format('       Choose an option:~n', []),
