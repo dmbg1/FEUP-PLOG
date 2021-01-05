@@ -1,0 +1,1 @@
+Para correr o programa dar consult do ficheiro main.pl e correr o predicado main.
